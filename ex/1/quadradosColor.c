@@ -10,10 +10,12 @@ void display(void);
 void timer(int);
 void keyboard(unsigned char key, int x, int y);
 void HSItoRGB(float h, float s, float i);
+float rad(float a);
 
 /* cores do quadrado */
 GLfloat r=0.0, g=0.0, b=0.0;
-float h, s, i;
+float s, i;
+float h;
 
 int main(int argc, char** argv){
   //srand(time(NULL));
@@ -41,6 +43,7 @@ int main(int argc, char** argv){
 
 void timer(int value){
   h = h + 0.01;
+  printf("h=%f\n", h);
   if(h>90) h=0;
   glutPostRedisplay();
   glutTimerFunc(33, timer, 1);
@@ -89,21 +92,24 @@ void HSItoRGB(float h, float s, float i) {
   if (h>= 0 && h < 120)
   {
     b = i*(1-s);
-    r = i*(1+(s*cos(h)/cos(60-h)));
+    r = i*(1+(s*cos(h)/cos(rad(60-h))));
     g = 3*i-(r+b);
   } else if (h < 240)
   {
     h = h-120;
     r = i*(1-s);
-    g = i*(1+(s*cos(h)/cos(60-h)));
+    g = i*(1+(s*cos(h)/cos(rad(60-h))));
     b = 3*i-(r+g);
   } else if (h <= 360)
   {
     h = h-240;
     g = i*(1-s);
-    b = i*(1+(s*cos(h)/cos(60-h)));
+    b = i*(1+(s*cos(h)/cos(rad(60-h))));
     r = 3*i-(g+b);
   } else {
     printf("\nERROR - Invalid Color!!\n");
   }
+}
+float rad(float a) {
+  return ((float)a)*M_PI/180.0;
 }
