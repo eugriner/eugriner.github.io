@@ -8,42 +8,97 @@ Hanoch Griner <eugriner@gmail.com>
 Esse relatório contém a resolução dos exercícios referentes ao tutorial de OpenGL do docente Agostinho Brito.
 http://agostinhobritojr.github.io/tutoriais/opengl/
 
-O relatório esta dividido em tópicos seguindo a estrutura do tutorial. Cada tópico contém: questão, seguida do código fonte desenvolvido/adaptado para resolver a questão e por último a imagem ou imagens geradas na execução do código. 
+O relatório esta dividido em tópicos seguindo a estrutura do tutorial. Cada tópico contém: questão, seguida do código fonte desenvolvido/adaptado para resolver a questão e por último a imagem ou imagens geradas na execução do código.
 
 == Conceitos iniciais
 
 === -
 
-Questão:
+==== Questão
 
 Utilizando o programa teste-make.c como referência, implemente um programa quadrados4.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, e quatro quadrados de cores diferentes arranjados na janela.
 
-Código:
+==== Código
 
 [source,c++]
 ----
 include::{sourcedir}/1/quadrados4.c[]
 ----
 
-Imagem:
+==== Imagem
 
 image::ex/1/quadrados4.png[]
 
 === -
 
-Questão:
+==== Questão
 
 Utilizando o programa teste-make.c como referência, implemente um programa quadradoscolor.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado com as mesmas dimensões do quadrado original. Entretanto, cada uma das cores determinadas para os quatro vértices do quadrado deverão ser determinadas a partir de valores calculados via modelo HSI. Implemente um temporizador para os valores de H mudarem com o tempo para os vértices, produzindo uma pequena animação. Comente a linha glShadeModel(GL_FLAT) para que o feito de degradê possa ser visualizado.
 
-Código:
+==== Código
 
 [source,c++]
 ----
 include::{sourcedir}/1/quadradosColor.c[]
 ----
 
-Imagem:
+==== Imagem
 
 image::ex/1/quadradosColor1.png[]
 
 image::ex/1/quadradosColor2.png[]
+
+== Desenhando linhas e pontos
+
+=== -
+
+==== Questão
+
+Utilizando o programa linha.c como referência, implemente um programa quadrado.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado vermelho, com vértice superior esquerdo de coordenadas (x, y)= (30, 226) e vértice inferior direito de coordenadas (x, y) = (226, 30). Quando a tecla a (keycode=97) for pressionada, o quadrado deverá ficar com a cor azul. Quando a tecla v (keycode=118) for pressionada, o quadrado deverá voltar à cor vermelha.
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/2/quadrado.c[]
+----
+
+==== Imagem
+
+image::ex/2/quadrado1.png[]
+
+image::ex/2/quadrado2.png[]
+
+=== -
+
+==== Questão
+
+Implemente o algoritmo de Bresenham para traçado de linhas, utilizando GL_POINTS como parâmetro da função glBegin(). Este parâmetro indica que cada vértice deve ser tratado como um ponto simples. Utilizando o algoritmo implementado, desenhe uma reta verde do ponto (x, y)=(40, 200) ao ponto (x, y)=(200, 10).
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/2/bresenhamLinha.c[]
+----
+
+==== Imagem
+
+image::ex/2/bresenhamLinha.png[]
+
+=== -
+
+==== Questão
+
+Implemente o algoritmo de Bresenham para traçado de circunferências, utilizando GL_POINTS como parâmetro da função glBegin(). Utilizando o algoritmo implementado, desenhe uma circunferência azul de raio r=50, centrada no ponto (x, y) = (128, 128).
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/2/bresenhamCircle.c[]
+----
+
+==== Imagem
+
+image::ex/2/bresenhamCircle.png[]

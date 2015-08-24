@@ -1,9 +1,3 @@
-/*Implemente o algoritmo de Bresenham para traçado de
-linhas, utilizando GL_POINTS como parâmetro da função
-glBegin(). Este parâmetro indica que cada vértice deve
-ser tratado como um ponto simples. Utilizando o
-algoritmo implementado, desenhe uma reta verde do ponto
-(x, y)=(40, 200) ao ponto (x, y)=(200, 10).*/
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <cmath>
