@@ -816,8 +816,6 @@ void display(void) {
   int y0 = 200;
   int y1 = 10;
 
-  //bresenDraw(x0, y0, x1, y1);
-  //bresenDraw(40, 40, 200, 150);
   bresenDraw(40, 200, 200, 10);
 
   glEnd();
@@ -990,10 +988,449 @@ void pontosDaCircunferencia(int x, int y, int xc, int yc) {
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_preenchimento_de_regiões">3. Preenchimento de regiões</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="__6">3.1. -</h3>
+<div class="sect3">
+<h4 id="_questão_6">3.1.1. Questão</h4>
+<div class="paragraph">
+<p>Utilizando o programa preenchimento.c como referência, implemente um programa selecao.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, quatro polígonos com as mesmas coordenadas dos polígonos do programa de referência. Todos os polígonos devem estar inicialmente preenchidos de amarelo e com bordas pretas. Quando o usuário clicar com o botão esquerdo do mouse dentro de um dos polígonos, a cor de preechimento deste polígono deverá mudar para uma cor aleatória. Quando a tecla b (keycode=98) for pressionada, o programa passará a mudar as cores das bordas e não mais dos fundos dos polígonos. Quando a tecla f (keycode=102) for pressionada, o programa passará a mudar as cores dos fundos dos polígonos e não mais das bordas.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_6">3.1.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;GL/glut.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+GLfloat rb[4], gb[4], bb[4], rf[4], gf[4], bf[4];
+int qx[4], qy[4];
+int posX, posY;
+bool flagKey;
+void init(void);
+void display(void);
+void keyboard(unsigned char key, int x, int y);
+void mouse(int button, int state, int x, int y);
+void square(int qn);
+
+int main(int argc, char** argv) {
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize (256, 256);
+  glutInitWindowPosition (100, 100);
+  glutCreateWindow ("Preenchendo regioes");
+  init();
+  glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMainLoop();
+  return 0;
+}
+
+void init(void) {
+  glClearColor(1.0, 1.0, 1.0, 1.0);
+  glOrtho (0, 256, 0, 256, -1 , 1);
+  for (int i = 0; i &lt; 4; ++i)
+  {
+    rb[i] = 0; gb[i] = 0; bb[i] = 0;
+    rf[i] = 1; gf[i] = 1; bf[i] = 0;
+  }
+
+  flagKey = 1;
+  qx[0] = 30;
+  qy[0] = 226;
+  qx[1] = 143;
+  qy[1] = 226;
+  qx[2] = 30;
+  qy[2] = 113;
+  qx[3] = 143;
+  qy[3] = 113;
+  posX = 0; posY = 0;
+}
+
+void display(void) {
+  int i;
+  glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_POLYGON_STIPPLE);
+
+  square(0);
+  square(1);
+  square(2);
+  square(3);
+
+  glFlush();
+  glutSwapBuffers();
+}
+
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+  case 'b':
+    flagKey = 0;
+    break;
+  case 'f':
+    flagKey = 1;
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
+}
+
+void mouse(int button, int state, int x, int y) {
+  posX = x;
+  //O eixo y do rastreamento do mouse é o inverso do de desenho do openGL, why!!!???
+  posY = (y-256)*-1;
+  //posY = y;
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      //printf("(%d,%d)\n", posX, posY);
+      glutPostRedisplay();
+    }
+    break;
+  }
+}
+
+void square(int qn) {
+  int x = qx[qn];
+  int y = qy[qn];
+  //printf("Qn=%d, X=%d, Y=%d\n",qn, x, y);
+  //printf("(X=%d)\n", (x &lt;= posX &amp;&amp; (x+83) &gt;= posX));
+  //printf("(Y=%d)\n", (y &lt;= posY &amp;&amp; (y-83) &gt;= posY));
+  if ((x &lt;= posX &amp;&amp; (x+83) &gt;= posX) &amp;&amp; (y &gt;= posY &amp;&amp; (y-83) &lt;= posY))
+  {
+    if (flagKey)
+    {
+      rf[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      gf[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      bf[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+    } else {
+      rb[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      gb[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      bb[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+    }
+  }
+  glPolygonMode(GL_BACK, GL_FILL);
+  glColor3f(rf[qn], gf[qn], bf[qn]);
+  glBegin(GL_POLYGON);
+  glVertex2i(x, y); glVertex2i(x + 83, y);
+  glVertex2i(x + 83, y - 83); glVertex2i(x, y - 83);
+  glEnd();
+
+  glPolygonMode(GL_BACK, GL_LINE);
+  glColor3f(rb[qn], gb[qn], bb[qn]);
+  glBegin(GL_POLYGON);
+  glVertex2i(x, y); glVertex2i(x + 83, y);
+  glVertex2i(x + 83, y - 83); glVertex2i(x, y - 83);
+  glEnd();
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_6">3.1.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/3/selecao1.png" alt="selecao1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/3/selecao2.png" alt="selecao2">
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="__7">3.2. -</h3>
+<div class="sect3">
+<h4 id="_questão_7">3.2.1. Questão</h4>
+<div class="paragraph">
+<p>Repita o item anterior utilizando buffer simples e comente os resultados obtidos.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_7">3.2.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;GL/glut.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+GLfloat rb[4], gb[4], bb[4], rf[4], gf[4], bf[4];
+int qx[4], qy[4];
+int posX, posY;
+bool flagKey;
+void init(void);
+void display(void);
+void keyboard(unsigned char key, int x, int y);
+void mouse(int button, int state, int x, int y);
+void square(int qn);
+
+int main(int argc, char** argv) {
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);
+  glutInitWindowSize (256, 256);
+  glutInitWindowPosition (100, 100);
+  glutCreateWindow ("Preenchendo regioes");
+  init();
+  glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMainLoop();
+  return 0;
+}
+
+void init(void) {
+  glClearColor(1.0, 1.0, 1.0, 1.0);
+  glOrtho (0, 256, 0, 256, -1 , 1);
+  for (int i = 0; i &lt; 4; ++i)
+  {
+    rb[i] = 0; gb[i] = 0; bb[i] = 0;
+    rf[i] = 1; gf[i] = 1; bf[i] = 0;
+  }
+
+  flagKey = 1;
+  qx[0] = 30;
+  qy[0] = 226;
+  qx[1] = 143;
+  qy[1] = 226;
+  qx[2] = 30;
+  qy[2] = 113;
+  qx[3] = 143;
+  qy[3] = 113;
+  posX = 0; posY = 0;
+}
+
+void display(void) {
+  int i;
+  glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_POLYGON_STIPPLE);
+
+  square(0);
+  square(1);
+  square(2);
+  square(3);
+
+  glFlush();
+  //glutSwapBuffers();
+}
+
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+  case 'b':
+    flagKey = 0;
+    break;
+  case 'f':
+    flagKey = 1;
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
+}
+
+void mouse(int button, int state, int x, int y) {
+  posX = x;
+  //O eixo y do rastreamento do mouse é o inverso do de desenho do openGL, why!!!???
+  posY = (y-256)*-1;
+  //posY = y;
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      //printf("(%d,%d)\n", posX, posY);
+      glutPostRedisplay();
+    }
+    break;
+  }
+}
+
+void square(int qn) {
+  int x = qx[qn];
+  int y = qy[qn];
+  //printf("Qn=%d, X=%d, Y=%d\n",qn, x, y);
+  //printf("(X=%d)\n", (x &lt;= posX &amp;&amp; (x+83) &gt;= posX));
+  //printf("(Y=%d)\n", (y &lt;= posY &amp;&amp; (y-83) &gt;= posY));
+  if ((x &lt;= posX &amp;&amp; (x+83) &gt;= posX) &amp;&amp; (y &gt;= posY &amp;&amp; (y-83) &lt;= posY))
+  {
+    if (flagKey)
+    {
+      rf[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      gf[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      bf[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+    } else {
+      rb[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      gb[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+      bb[qn] = (GLfloat)rand() / (RAND_MAX + 1.0);
+    }
+  }
+  glPolygonMode(GL_BACK, GL_FILL);
+  glColor3f(rf[qn], gf[qn], bf[qn]);
+  glBegin(GL_POLYGON);
+  glVertex2i(x, y); glVertex2i(x + 83, y);
+  glVertex2i(x + 83, y - 83); glVertex2i(x, y - 83);
+  glEnd();
+
+  glPolygonMode(GL_BACK, GL_LINE);
+  glColor3f(rb[qn], gb[qn], bb[qn]);
+  glBegin(GL_POLYGON);
+  glVertex2i(x, y); glVertex2i(x + 83, y);
+  glVertex2i(x + 83, y - 83); glVertex2i(x, y - 83);
+  glEnd();
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_7">3.2.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/3/selecaoBS.png" alt="selecaoBS">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comentário">3.2.4. Comentário</h4>
+<div class="paragraph">
+<p>Meus olhos destreinados não foram capazes de notar nenhuma alteração após alterar de DOUBLE para SINGLE e desabilitar o swap.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="__8">3.3. -</h3>
+<div class="sect3">
+<h4 id="_questão_8">3.3.1. Questão</h4>
+<div class="paragraph">
+<p>Crie um padrão de preenchimento com as iniciais dos seu nome e sobre nome, por exemplo, AB, para Agostinho Brito. Implemente um programa que desenhe em uma janela de fundo branco de dimensões 300x300 pixels um hexágono com bounding box de dimensões 200x200 pixels. O hexágono deve estar centrado na tela e preenchido com cor azul, utilize este padrão de preenchimento criado.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_8">3.3.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;GL/glut.h&gt;
+#include &lt;stdlib.h&gt;
+
+GLubyte tux[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x08, 0x20, 0x03, 0xF8,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x08, 0x20, 0x02, 0x08,
+  0x0F, 0xE0, 0x02, 0x38,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x02, 0x00,
+  0x08, 0x20, 0x03, 0xF8,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00
+};
+
+GLfloat r, g, b;
+
+void init(void);
+void display(void);
+void keyboard(unsigned char key, int x, int y);
+void mouse(int button, int state, int x, int y);
+
+int main(int argc, char** argv) {
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize (300, 300);
+  glutInitWindowPosition (100, 100);
+  glutCreateWindow ("Preenchendo regiões");
+  init();
+  glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMainLoop();
+  return 0;
+}
+
+void init(void) {
+  glClearColor(1.0, 1.0, 1.0, 1.0);
+  glOrtho (0, 300, 0, 300, -1 , 1);
+  r = 0; g = 0; b = 1;
+}
+
+void display(void) {
+  int i;
+  glClear(GL_COLOR_BUFFER_BIT);
+  glDisable(GL_POLYGON_STIPPLE);
+
+  glEnable(GL_POLYGON_STIPPLE);
+  glColor3f(r, g, 1.0);
+  glPolygonStipple(tux);
+  glBegin(GL_POLYGON);
+  glVertex2i(100, 63); glVertex2i(50, 150); glVertex2i(100, 237);
+  glVertex2i(200, 237); glVertex2i(250, 150); glVertex2i(200, 63);
+  glEnd();
+  glFlush();
+  glutSwapBuffers();
+}
+
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+  case 27:
+    exit(0);
+    break;
+  }
+}
+
+void mouse(int button, int state, int x, int y) {
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      r = (GLfloat)rand() / (RAND_MAX + 1.0);
+      g = (GLfloat)rand() / (RAND_MAX + 1.0);
+      b = (GLfloat)rand() / (RAND_MAX + 1.0);
+      glutPostRedisplay();
+    }
+    break;
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_8">3.3.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/3/padrao.png" alt="padrao">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-08-24 07:54:13 BRT
+Last updated 2015-08-24 14:47:16 BRT
 </div>
 </div>
 </body>

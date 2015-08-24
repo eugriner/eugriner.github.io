@@ -102,3 +102,61 @@ include::{sourcedir}/2/bresenhamCircle.c[]
 ==== Imagem
 
 image::ex/2/bresenhamCircle.png[]
+
+== Preenchimento de regiões
+
+=== -
+
+==== Questão
+
+Utilizando o programa preenchimento.c como referência, implemente um programa selecao.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, quatro polígonos com as mesmas coordenadas dos polígonos do programa de referência. Todos os polígonos devem estar inicialmente preenchidos de amarelo e com bordas pretas. Quando o usuário clicar com o botão esquerdo do mouse dentro de um dos polígonos, a cor de preechimento deste polígono deverá mudar para uma cor aleatória. Quando a tecla b (keycode=98) for pressionada, o programa passará a mudar as cores das bordas e não mais dos fundos dos polígonos. Quando a tecla f (keycode=102) for pressionada, o programa passará a mudar as cores dos fundos dos polígonos e não mais das bordas.
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/3/selecao.c[]
+----
+
+==== Imagem
+
+image::ex/3/selecao1.png[]
+
+image::ex/3/selecao2.png[]
+
+=== -
+
+==== Questão
+
+Repita o item anterior utilizando buffer simples e comente os resultados obtidos.
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/3/selecaoBS.c[]
+----
+
+==== Imagem
+
+image::ex/3/selecaoBS.png[]
+
+==== Comentário
+Meus olhos destreinados não foram capazes de notar nenhuma alteração após alterar de DOUBLE para SINGLE e desabilitar o swap.
+
+=== -
+
+==== Questão
+
+Crie um padrão de preenchimento com as iniciais dos seu nome e sobre nome, por exemplo, AB, para Agostinho Brito. Implemente um programa que desenhe em uma janela de fundo branco de dimensões 300x300 pixels um hexágono com bounding box de dimensões 200x200 pixels. O hexágono deve estar centrado na tela e preenchido com cor azul, utilize este padrão de preenchimento criado.
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/3/padrao.c[]
+----
+
+==== Imagem
+
+image::ex/3/padrao.png[]

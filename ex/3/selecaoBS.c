@@ -1,5 +1,3 @@
-//Meus olhos destreinados não foram capazes de notar nenhuma alteração
-//apos alterar de DOUBLE para SINGLE e desabilitar o swap.
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>

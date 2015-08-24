@@ -37,8 +37,6 @@ void display(void) {
   int y0 = 200;
   int y1 = 10;
 
-  //bresenDraw(x0, y0, x1, y1);
-  //bresenDraw(40, 40, 200, 150);
   bresenDraw(40, 200, 200, 10);
 
   glEnd();
