@@ -1,5 +1,3 @@
-/* programa teste-make.c */
-
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,7 +64,7 @@ void display(void){
   glVertex2f(0.75,0.75);
   glVertex2f(0.55,0.75);
   glEnd();
-  //quadrado 3
+  //quadrado 4
   glBegin(GL_POLYGON);
   glColor3f (0.0, 1.0, 1.0);
   glVertex2f(0.55,0.25);

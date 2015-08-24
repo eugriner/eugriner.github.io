@@ -1,0 +1,49 @@
+= COMPUTAÇÃO GRÁFICA 2015.2
+:source-highlighter: prettify
+:sectnums:
+:sourcedir: ex/
+Discente
+Hanoch Griner <eugriner@gmail.com>
+
+Esse relatório contém a resolução dos exercícios referentes ao tutorial de OpenGL do docente Agostinho Brito.
+http://agostinhobritojr.github.io/tutoriais/opengl/
+
+O relatório esta dividido em tópicos seguindo a estrutura do tutorial. Cada tópico contém: questão, seguida do código fonte desenvolvido/adaptado para resolver a questão e por último a imagem ou imagens geradas na execução do código. 
+
+== Conceitos iniciais
+
+=== -
+
+Questão:
+
+Utilizando o programa teste-make.c como referência, implemente um programa quadrados4.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, e quatro quadrados de cores diferentes arranjados na janela.
+
+Código:
+
+[source,c++]
+----
+include::{sourcedir}/1/quadrados4.c[]
+----
+
+Imagem:
+
+image::ex/1/quadrados4.png[]
+
+=== -
+
+Questão:
+
+Utilizando o programa teste-make.c como referência, implemente um programa quadradoscolor.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado com as mesmas dimensões do quadrado original. Entretanto, cada uma das cores determinadas para os quatro vértices do quadrado deverão ser determinadas a partir de valores calculados via modelo HSI. Implemente um temporizador para os valores de H mudarem com o tempo para os vértices, produzindo uma pequena animação. Comente a linha glShadeModel(GL_FLAT) para que o feito de degradê possa ser visualizado.
+
+Código:
+
+[source,c++]
+----
+include::{sourcedir}/1/quadradosColor.c[]
+----
+
+Imagem:
+
+image::ex/1/quadradosColor1.png[]
+
+image::ex/1/quadradosColor2.png[]

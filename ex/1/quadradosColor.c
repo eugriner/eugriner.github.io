@@ -1,5 +1,3 @@
-/* programa teste-make.c */
-
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,10 +16,6 @@ float s, i;
 int h;
 
 int main(int argc, char** argv){
-  //srand(time(NULL));
-  //r = (float)rand() / (float)RAND_MAX ;
-  //g = (float)rand() / (float)RAND_MAX ;
-  //b = (float)rand() / (float)RAND_MAX ;
   h = 0;
   s = 1.0;
   i = 0.5;
