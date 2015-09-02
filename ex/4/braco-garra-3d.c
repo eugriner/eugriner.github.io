@@ -5,8 +5,7 @@ static int shoulder = 0, elbow = 0, thumb = 0, index = 0, middle = 0, base = 0;
 
 void init(void){
   glClearColor (0.0, 0.0, 0.0, 0.0);
-  //glEnable(GL_DEPTH_TEST);
-  glEnable(GL_COLOR_MATERIAL);
+  //glEnable(GL_DEPTH_TEST); // Deveria ter essa linha, mas quando coloco quebra no meu laptop
   glEnable(GL_CULL_FACE);
 }
 
@@ -16,10 +15,10 @@ void display(void){
 
   /* origem posicionada no ombro */
   glTranslatef (-1.0, 0.0, 0.0);
-  glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0);
   glRotatef ((GLfloat) base, 0.0, 1.0, 0.0);
+  glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0);
 
-  /* origem posicionada no centro do braço */ 
+  /* origem posicionada no centro do braco */ 
   glTranslatef (1.0, 0.0, 0.0);
   glPushMatrix();
   glScalef (2.0, 0.4, 1.0);

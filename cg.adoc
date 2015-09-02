@@ -210,3 +210,59 @@ include::{sourcedir}/3/padrao.c[]
 ==== Imagem
 
 image::ex/3/padrao.png[]
+
+
+
+== Transformações Geométricas
+
+=== Braço Garra
+
+==== Questão
+
+Utilizando o programa braco.c como referência, implemente um programa braco-garra.c. Este programa deverá acrescente ao braço robótico uma garra com três dedos, sendo um indicador, um médio e um polegar, como mostra a Figura 4.3. O usuário deverá poder rotacionar o dedo indicador com as teclas i e I, nos sentidos horário e anti-horário. Da mesma forma, as teclas p P deverão rotacionar o polegar, e teclas m M, o dedo médio do robô.
+
+image::ex/4/Figura4.3.png[]
+
+
+.Arquivos:
+* link:ex/4/braco.c[braco.c, window="_blank"]
+* link:ex/4/braco-garra.c[braco-garra.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/4/braco-garra.c[]
+----
+
+==== Imagem
+
+image::ex/4/braco-garra1.png[]
+
+image::ex/4/braco-garra2.png[]
+
+=== Braço Garra 3D
+
+==== Questão
+
+Copie o programa braco-garra.c que você criou com o nome braco-garra-3d.c. Neste novo programa, modifique o trecho da função main() que define o modo de apresentação no GLUT. Use a seguinte chamada para a função de inicialização: glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH), pois inclui o tratamento de profundidade e de superfícies escondidas no OpenGL . Além disso, ao invés de utilizar chamadas à função glutWireCube(), inclua chamadas apenas à função glutSolidCube(), que contém os mesmos argumentos. Acrescente à função init() as chamadas de função glEnable(GL_DEPTH_TEST); e glEnable(GL_CULL_FACE);, de modo que o tratamento de superfícies escondidas seja feito pelo OpenGL. Utilize cores diferentes para cada uma das partes do braço, de modo a obter um modelo semelhante ao da Figura 4.4. Possibilite também que a base do robô seja rotacionada em torno do eixo y, usando as teclas b e B, para girar nos sentidos horário e anti-horário.
+
+image::ex/4/Figura4.4.png[]
+
+
+.Arquivos:
+* link:ex/4/braco.c[braco-garra.c, window="_blank"]
+* link:ex/4/braco-garra.c[braco-garra-3d.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/4/braco-garra-3d.c[]
+----
+
+==== Imagem
+
+image::ex/4/braco-garra-3d1.png[]
+
+image::ex/4/braco-garra-3d3.png[]

@@ -15,7 +15,7 @@ void display(void){
   glTranslatef (-1.0, 0.0, 0.0);
   glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0);
 
-  /* origem posicionada no centro do braço */ 
+  /* origem posicionada no centro do braco */ 
   glTranslatef (1.0, 0.0, 0.0);
   glPushMatrix();
   glScalef (2.0, 0.4, 1.0);
