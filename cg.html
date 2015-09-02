@@ -413,12 +413,37 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>
 <script>document.addEventListener('DOMContentLoaded', prettyPrint)</script>
 </head>
-<body class="article">
+<body class="article toc2 toc-right">
 <div id="header">
 <h1>COMPUTAÇÃO GRÁFICA 2015.2</h1>
 <div class="details">
 <span id="author" class="author">Discente</span><br>
 <span id="revdate">Hanoch Griner &lt;eugriner@gmail.com&gt;</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_conceitos_iniciais">1. Conceitos iniciais</a>
+<ul class="sectlevel2">
+<li><a href="#_quadrados_4">1.1. Quadrados 4</a></li>
+<li><a href="#_quadrados_color">1.2. Quadrados Color</a></li>
+</ul>
+</li>
+<li><a href="#_desenhando_linhas_e_pontos">2. Desenhando linhas e pontos</a>
+<ul class="sectlevel2">
+<li><a href="#_quadrado">2.1. Quadrado</a></li>
+<li><a href="#_bresenham_linha">2.2. Bresenham Linha</a></li>
+<li><a href="#_bresenham_círculo">2.3. Bresenham Círculo</a></li>
+</ul>
+</li>
+<li><a href="#_preenchimento_de_regiões">3. Preenchimento de regiões</a>
+<ul class="sectlevel2">
+<li><a href="#_seleção">3.1. Seleção</a></li>
+<li><a href="#_seleção_buffer_simples">3.2. Seleção Buffer Simples</a></li>
+<li><a href="#_padrão_hg">3.3. Padrão HG</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 <div id="content">
@@ -431,17 +456,59 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>O relatório esta dividido em tópicos seguindo a estrutura do tutorial. Cada tópico contém: questão, seguida do código fonte desenvolvido/adaptado para resolver a questão e por último a imagem ou imagens geradas na execução do código.</p>
 </div>
+<div class="paragraph">
+<p>Para compilar e executar qualquer arquivo desse relatório deve-se colocar o arquivo Makefile na mesma pasta do arquivo .c desejado e executar o seguinte comando:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ make arquivodesejado &amp;&amp; ./arquivodesejado</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exemplo</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/Makefile" target="_blank">Makefile</a></p>
+</li>
+<li>
+<p><a href="ex/teste.c" target="_blank">teste.c</a></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Comando:</div>
+<div class="content">
+<pre>$ make teste &amp;&amp; ./teste</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Lembre-se que você precisa ter o GLUT e um compilador C/C++ no seu computador, caso não de certo, siga as instruções do <a href="http://agostinhobritojr.github.io/tutoriais/opengl/conceitos-iniciais.html#compilando-programas" target="_blank">tutorial do professor</a>.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_conceitos_iniciais">1. Conceitos iniciais</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_">1.1. -</h3>
+<h3 id="_quadrados_4">1.1. Quadrados 4</h3>
 <div class="sect3">
 <h4 id="_questão">1.1.1. Questão</h4>
 <div class="paragraph">
 <p>Utilizando o programa teste-make.c como referência, implemente um programa quadrados4.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, e quatro quadrados de cores diferentes arranjados na janela.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/1/teste-make.c" target="_blank">teste-make.c</a></p>
+</li>
+<li>
+<p><a href="ex/1/quadrados4.c" target="_blank">quadrados4.c</a></p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -537,11 +604,22 @@ void display(void){
 </div>
 </div>
 <div class="sect2">
-<h3 id="__2">1.2. -</h3>
+<h3 id="_quadrados_color">1.2. Quadrados Color</h3>
 <div class="sect3">
 <h4 id="_questão_2">1.2.1. Questão</h4>
 <div class="paragraph">
 <p>Utilizando o programa teste-make.c como referência, implemente um programa quadradoscolor.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado com as mesmas dimensões do quadrado original. Entretanto, cada uma das cores determinadas para os quatro vértices do quadrado deverão ser determinadas a partir de valores calculados via modelo HSI. Implemente um temporizador para os valores de H mudarem com o tempo para os vértices, produzindo uma pequena animação. Comente a linha glShadeModel(GL_FLAT) para que o feito de degradê possa ser visualizado.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/1/teste-make.c [teste-make.c , window="_blank"]</p>
+</li>
+<li>
+<p>link:ex/1/quadradosColor.c [quadradosColor.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -680,11 +758,22 @@ float rad(float a) {
 <h2 id="_desenhando_linhas_e_pontos">2. Desenhando linhas e pontos</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="__3">2.1. -</h3>
+<h3 id="_quadrado">2.1. Quadrado</h3>
 <div class="sect3">
 <h4 id="_questão_3">2.1.1. Questão</h4>
 <div class="paragraph">
 <p>Utilizando o programa linha.c como referência, implemente um programa quadrado.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado vermelho, com vértice superior esquerdo de coordenadas (x, y)= (30, 226) e vértice inferior direito de coordenadas (x, y) = (226, 30). Quando a tecla a (keycode=97) for pressionada, o quadrado deverá ficar com a cor azul. Quando a tecla v (keycode=118) for pressionada, o quadrado deverá voltar à cor vermelha.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/2/linha.c [linha.c , window="_blank"]</p>
+</li>
+<li>
+<p>link:ex/2/quadrado.c [quadrado.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -766,11 +855,19 @@ void keyboard(unsigned char key, int x, int y){
 </div>
 </div>
 <div class="sect2">
-<h3 id="__4">2.2. -</h3>
+<h3 id="_bresenham_linha">2.2. Bresenham Linha</h3>
 <div class="sect3">
 <h4 id="_questão_4">2.2.1. Questão</h4>
 <div class="paragraph">
 <p>Implemente o algoritmo de Bresenham para traçado de linhas, utilizando GL_POINTS como parâmetro da função glBegin(). Este parâmetro indica que cada vértice deve ser tratado como um ponto simples. Utilizando o algoritmo implementado, desenhe uma reta verde do ponto (x, y)=(40, 200) ao ponto (x, y)=(200, 10).</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/2/bresenhamLinha.c [bresenhamLinha.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -884,11 +981,19 @@ void bresenDraw(int x1, int y1, int x2, int y2) {
 </div>
 </div>
 <div class="sect2">
-<h3 id="__5">2.3. -</h3>
+<h3 id="_bresenham_círculo">2.3. Bresenham Círculo</h3>
 <div class="sect3">
 <h4 id="_questão_5">2.3.1. Questão</h4>
 <div class="paragraph">
 <p>Implemente o algoritmo de Bresenham para traçado de circunferências, utilizando GL_POINTS como parâmetro da função glBegin(). Utilizando o algoritmo implementado, desenhe uma circunferência azul de raio r=50, centrada no ponto (x, y) = (128, 128).</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/2/bresenhamCircle.c [bresenhamCircle.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -992,11 +1097,22 @@ void pontosDaCircunferencia(int x, int y, int xc, int yc) {
 <h2 id="_preenchimento_de_regiões">3. Preenchimento de regiões</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="__6">3.1. -</h3>
+<h3 id="_seleção">3.1. Seleção</h3>
 <div class="sect3">
 <h4 id="_questão_6">3.1.1. Questão</h4>
 <div class="paragraph">
 <p>Utilizando o programa preenchimento.c como referência, implemente um programa selecao.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, quatro polígonos com as mesmas coordenadas dos polígonos do programa de referência. Todos os polígonos devem estar inicialmente preenchidos de amarelo e com bordas pretas. Quando o usuário clicar com o botão esquerdo do mouse dentro de um dos polígonos, a cor de preechimento deste polígono deverá mudar para uma cor aleatória. Quando a tecla b (keycode=98) for pressionada, o programa passará a mudar as cores das bordas e não mais dos fundos dos polígonos. Quando a tecla f (keycode=102) for pressionada, o programa passará a mudar as cores dos fundos dos polígonos e não mais das bordas.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/3/preenchimento.c [preenchimento.c, window="_blank"]</p>
+</li>
+<li>
+<p>link:ex/3/selecao.c [selecao.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -1146,11 +1262,19 @@ void square(int qn) {
 </div>
 </div>
 <div class="sect2">
-<h3 id="__7">3.2. -</h3>
+<h3 id="_seleção_buffer_simples">3.2. Seleção Buffer Simples</h3>
 <div class="sect3">
 <h4 id="_questão_7">3.2.1. Questão</h4>
 <div class="paragraph">
 <p>Repita o item anterior utilizando buffer simples e comente os resultados obtidos.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/3/selecaoBS.c [selecaoBS.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -1301,11 +1425,19 @@ void square(int qn) {
 </div>
 </div>
 <div class="sect2">
-<h3 id="__8">3.3. -</h3>
+<h3 id="_padrão_hg">3.3. Padrão HG</h3>
 <div class="sect3">
 <h4 id="_questão_8">3.3.1. Questão</h4>
 <div class="paragraph">
 <p>Crie um padrão de preenchimento com as iniciais dos seu nome e sobre nome, por exemplo, AB, para Agostinho Brito. Implemente um programa que desenhe em uma janela de fundo branco de dimensões 300x300 pixels um hexágono com bounding box de dimensões 200x200 pixels. O hexágono deve estar centrado na tela e preenchido com cor azul, utilize este padrão de preenchimento criado.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p>link:ex/3/padrao.c [padrao.c, window="_blank"]</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -1430,7 +1562,7 @@ void mouse(int button, int state, int x, int y) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-08-24 14:47:16 BRT
+Last updated 2015-09-02 13:05:03 BRT
 </div>
 </div>
 </body>

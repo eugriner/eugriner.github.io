@@ -2,6 +2,8 @@
 :source-highlighter: prettify
 :sectnums:
 :sourcedir: ex/
+:toc: right
+:linkattrs:
 Discente
 Hanoch Griner <eugriner@gmail.com>
 
@@ -10,13 +12,37 @@ http://agostinhobritojr.github.io/tutoriais/opengl/
 
 O relatório esta dividido em tópicos seguindo a estrutura do tutorial. Cada tópico contém: questão, seguida do código fonte desenvolvido/adaptado para resolver a questão e por último a imagem ou imagens geradas na execução do código.
 
+Para compilar e executar qualquer arquivo desse relatório deve-se colocar o arquivo Makefile na mesma pasta do arquivo .c desejado e executar o seguinte comando:
+
+----
+$ make arquivodesejado && ./arquivodesejado
+----
+
+Exemplo
+
+.Arquivos:
+
+* link:ex/Makefile[Makefile, window="_blank"] 
+* link:ex/teste.c[teste.c, window="_blank"] 
+
+.Comando:
+----
+$ make teste && ./teste
+----
+
+Lembre-se que você precisa ter o GLUT e um compilador C/C++ no seu computador, caso não de certo, siga as instruções do link:http://agostinhobritojr.github.io/tutoriais/opengl/conceitos-iniciais.html#compilando-programas[tutorial do professor, window="_blank"].
+
 == Conceitos iniciais
 
-=== -
+=== Quadrados 4
 
 ==== Questão
 
 Utilizando o programa teste-make.c como referência, implemente um programa quadrados4.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, e quatro quadrados de cores diferentes arranjados na janela.
+
+.Arquivos:
+* link:ex/1/teste-make.c[teste-make.c, window="_blank"]
+* link:ex/1/quadrados4.c[quadrados4.c, window="_blank"]
 
 ==== Código
 
@@ -29,11 +55,15 @@ include::{sourcedir}/1/quadrados4.c[]
 
 image::ex/1/quadrados4.png[]
 
-=== -
+=== Quadrados Color
 
 ==== Questão
 
 Utilizando o programa teste-make.c como referência, implemente um programa quadradoscolor.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado com as mesmas dimensões do quadrado original. Entretanto, cada uma das cores determinadas para os quatro vértices do quadrado deverão ser determinadas a partir de valores calculados via modelo HSI. Implemente um temporizador para os valores de H mudarem com o tempo para os vértices, produzindo uma pequena animação. Comente a linha glShadeModel(GL_FLAT) para que o feito de degradê possa ser visualizado.
+
+.Arquivos:
+* link:ex/1/teste-make.c[teste-make.c , window="_blank"]
+* link:ex/1/quadradosColor.c[quadradosColor.c, window="_blank"]
 
 ==== Código
 
@@ -50,11 +80,15 @@ image::ex/1/quadradosColor2.png[]
 
 == Desenhando linhas e pontos
 
-=== -
+=== Quadrado
 
 ==== Questão
 
 Utilizando o programa linha.c como referência, implemente um programa quadrado.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, um quadrado vermelho, com vértice superior esquerdo de coordenadas (x, y)= (30, 226) e vértice inferior direito de coordenadas (x, y) = (226, 30). Quando a tecla a (keycode=97) for pressionada, o quadrado deverá ficar com a cor azul. Quando a tecla v (keycode=118) for pressionada, o quadrado deverá voltar à cor vermelha.
+
+.Arquivos:
+* link:ex/2/linha.c[linha.c , window="_blank"]
+* link:ex/2/quadrado.c[quadrado.c, window="_blank"]
 
 ==== Código
 
@@ -69,11 +103,14 @@ image::ex/2/quadrado1.png[]
 
 image::ex/2/quadrado2.png[]
 
-=== -
+=== Bresenham Linha
 
 ==== Questão
 
 Implemente o algoritmo de Bresenham para traçado de linhas, utilizando GL_POINTS como parâmetro da função glBegin(). Este parâmetro indica que cada vértice deve ser tratado como um ponto simples. Utilizando o algoritmo implementado, desenhe uma reta verde do ponto (x, y)=(40, 200) ao ponto (x, y)=(200, 10).
+
+.Arquivos:
+* link:ex/2/bresenhamLinha.c[bresenhamLinha.c, window="_blank"]
 
 ==== Código
 
@@ -86,11 +123,14 @@ include::{sourcedir}/2/bresenhamLinha.c[]
 
 image::ex/2/bresenhamLinha.png[]
 
-=== -
+=== Bresenham Círculo
 
 ==== Questão
 
 Implemente o algoritmo de Bresenham para traçado de circunferências, utilizando GL_POINTS como parâmetro da função glBegin(). Utilizando o algoritmo implementado, desenhe uma circunferência azul de raio r=50, centrada no ponto (x, y) = (128, 128).
+
+.Arquivos:
+* link:ex/2/bresenhamCircle.c[bresenhamCircle.c, window="_blank"]
 
 ==== Código
 
@@ -105,11 +145,15 @@ image::ex/2/bresenhamCircle.png[]
 
 == Preenchimento de regiões
 
-=== -
+=== Seleção
 
 ==== Questão
 
 Utilizando o programa preenchimento.c como referência, implemente um programa selecao.c. Este programa deverá desenhar numa janela com fundo branco, de dimensões 256x256 pixels, quatro polígonos com as mesmas coordenadas dos polígonos do programa de referência. Todos os polígonos devem estar inicialmente preenchidos de amarelo e com bordas pretas. Quando o usuário clicar com o botão esquerdo do mouse dentro de um dos polígonos, a cor de preechimento deste polígono deverá mudar para uma cor aleatória. Quando a tecla b (keycode=98) for pressionada, o programa passará a mudar as cores das bordas e não mais dos fundos dos polígonos. Quando a tecla f (keycode=102) for pressionada, o programa passará a mudar as cores dos fundos dos polígonos e não mais das bordas.
+
+.Arquivos:
+* link:ex/3/preenchimento.c[preenchimento.c, window="_blank"]
+* link:ex/3/selecao.c[selecao.c, window="_blank"]
 
 ==== Código
 
@@ -124,11 +168,14 @@ image::ex/3/selecao1.png[]
 
 image::ex/3/selecao2.png[]
 
-=== -
+=== Seleção Buffer Simples
 
 ==== Questão
 
 Repita o item anterior utilizando buffer simples e comente os resultados obtidos.
+
+.Arquivos:
+* link:ex/3/selecaoBS.c[selecaoBS.c, window="_blank"]
 
 ==== Código
 
@@ -144,11 +191,14 @@ image::ex/3/selecaoBS.png[]
 ==== Comentário
 Meus olhos destreinados não foram capazes de notar nenhuma alteração após alterar de DOUBLE para SINGLE e desabilitar o swap.
 
-=== -
+=== Padrão HG
 
 ==== Questão
 
 Crie um padrão de preenchimento com as iniciais dos seu nome e sobre nome, por exemplo, AB, para Agostinho Brito. Implemente um programa que desenhe em uma janela de fundo branco de dimensões 300x300 pixels um hexágono com bounding box de dimensões 200x200 pixels. O hexágono deve estar centrado na tela e preenchido com cor azul, utilize este padrão de preenchimento criado.
+
+.Arquivos:
+* link:ex/3/padrao.c[padrao.c, window="_blank"]
 
 ==== Código
 
