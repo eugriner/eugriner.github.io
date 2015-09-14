@@ -449,6 +449,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_braço_garra_3d">4.2. Braço Garra 3D</a></li>
 </ul>
 </li>
+<li><a href="#_projeções_geométricas">5. Projeções geométricas</a>
+<ul class="sectlevel2">
+<li><a href="#_tipos_de_projeções">5.1. Tipos de Projeções</a></li>
+<li><a href="#_projeções_animadas">5.2. Projeções Animadas</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1954,10 +1960,414 @@ int main(int argc, char** argv){
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_projeções_geométricas">5. Projeções geométricas</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_tipos_de_projeções">5.1. Tipos de Projeções</h3>
+<div class="sect3">
+<h4 id="_questão_11">5.1.1. Questão</h4>
+<div class="paragraph">
+<p>Utilizando o programa projecoes.c como referência, implemente um programa tiposdeprojecoes.c. Este programa deverá conter mais sete opções de teclado: t e f, para exibir o topo e o fundo do objeto, F e T, para mostrar a frente e a face traseira, e e d, para mostrar a faces esquerda e direita, respectivamente, e a tecla c, para mostrar o triângulo do canto.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/5/projecoes.c" target="_blank">projecoes.c</a></p>
+</li>
+<li>
+<p><a href="ex/5/tiposdeprojecoes.c" target="_blank">tiposdeprojecoes.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_11">5.1.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;GL/glut.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+void init(void);
+void display(void);
+void keyboard(unsigned char key, int x, int y);
+void reshape (int w, int h);
+
+#define AZUL     0.0, 0.0, 1.0
+#define VERMELHO 1.0, 0.0, 0.0
+#define AMARELO  1.0, 1.0, 0.0
+#define VERDE    0.0, 1.0, 0.0
+#define CYAN     1.0, 0.0, 1.0
+#define LARANJA  0.8, 0.6, 0.1
+#define ROSEO    0.7, 0.1, 0.6
+#define CINZA    0.6, 0.6, 0.6
+
+static GLfloat vertices[30]={
+  0.0,  30.0, 30.0, /* 0 */
+  20.0, 30.0, 30.0, /* 1 */
+  30.0, 20.0, 30.0, /* 2 */
+  30.0,  0.0, 30.0, /* 3 */
+  0.0,   0.0, 30.0, /* 4 */
+  0.0,  30.0,  0.0, /* 5 */
+  30.0, 30.0,  0.0, /* 6 */
+  30.0,  0.0,  0.0, /* 7 */
+  0.0,   0.0,  0.0, /* 8 */
+  30.0, 30.0, 20.0  /* 9 */
+};
+
+static GLubyte frenteIndices[]    = {0,4,3,2,1};
+static GLubyte trasIndices[]      = {5,6,7,8};
+static GLubyte esquerdaIndices[]  = {0,5,8,4};
+static GLubyte direitaIndices[]   = {2,3,7,6,9};
+static GLubyte topoIndices[]      = {0,1,9,6,5};
+static GLubyte fundoIndices[]     = {3,4,8,7};
+static GLubyte trianguloIndices[] = {1,2,9};
+
+static int eixoy, eixox;
+int largura, altura;
+
+int main(int argc, char** argv){
+  int i;
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize (256, 256);
+  glutInitWindowPosition (100, 100);
+  glutCreateWindow (argv[0]);
+  init();
+  glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
+  glutReshapeFunc(reshape);
+  glutMainLoop();
+  return 0;
+}
+
+void init(void){
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glOrtho (-50, 50, -50, 50, -50 , 50);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+}
+
+void reshape (int w, int h){
+  glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+  largura=w;
+  altura=h;
+}
+
+void display(void){
+  glPushMatrix();
+  glRotatef ((GLfloat) eixoy, 0.0, 1.0, 0.0);
+  glRotatef ((GLfloat) eixox, 1.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+  glColor3f (AZUL); /* frente */
+  glDrawElements(GL_POLYGON, 5, GL_UNSIGNED_BYTE, frenteIndices);
+
+  glColor3f (AMARELO); /* esquerda */
+  glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_BYTE, esquerdaIndices);
+
+  glColor3f (VERMELHO); /* tras */
+  glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_BYTE, trasIndices);
+
+  glColor3f (VERDE); /* direita */
+  glDrawElements(GL_POLYGON, 5, GL_UNSIGNED_BYTE, direitaIndices);
+
+  glColor3f (CYAN); /* topo */
+  glDrawElements(GL_POLYGON, 5, GL_UNSIGNED_BYTE, topoIndices);
+
+  glColor3f (LARANJA); /* fundo */
+  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, fundoIndices);
+
+  glColor3f (CINZA); /* triangulo */
+  glDrawElements(GL_POLYGON, 3, GL_UNSIGNED_BYTE, trianguloIndices);
+
+  glDisableClientState (GL_VERTEX_ARRAY);
+
+  glPopMatrix();
+  glutSwapBuffers();
+}
+
+void keyboard(unsigned char key, int x, int y){
+  switch (key) {
+  case 27:
+    exit(0);
+    break;
+  case 'a':
+    printf("%d, %d\n",x,y);
+    break;
+  case 'y':
+    eixoy = (eixoy + 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'Y':
+    eixoy = (eixoy - 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'x':
+    eixox = (eixox + 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'X':
+    eixox = (eixox - 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'p':
+    glLoadIdentity();
+    gluPerspective(65.0, (GLfloat) largura/(GLfloat) altura, 20.0, 120.0);
+    gluLookAt(0, 0, -90, 0, 0, 0, 0, 1, 0);
+    glutPostRedisplay();
+    break;
+  case 'o':
+    glLoadIdentity();
+    glOrtho (-50, 50, -50, 50, -50 , 50);
+    glutPostRedisplay();
+    break;
+  case 't':
+    eixox = 90;
+    eixoy = 0;
+    glutPostRedisplay();
+    break;
+  case 'f':
+    eixox = 270;
+    eixoy = 0;
+    glutPostRedisplay();
+    break;
+  case 'T':
+    eixox = 0;
+    eixoy = 180;
+    glutPostRedisplay();
+    break;
+  case 'F':
+    eixox = 0;
+    eixoy = 0;
+    glutPostRedisplay();
+    break;
+  case 'd':
+    eixox = 0;
+    eixoy =270;
+    glutPostRedisplay();
+    break;
+  case 'e':
+    eixox = 0;
+    eixoy = 90;
+    glutPostRedisplay();
+    break;
+  case 'c':
+    eixox = 45;
+    eixoy = -45;
+    glutPostRedisplay();
+    break;
+  }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_11">5.1.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/5/tiposdeprojecoes1.png" alt="tiposdeprojecoes1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/5/tiposdeprojecoes2.png" alt="tiposdeprojecoes2">
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_projeções_animadas">5.2. Projeções Animadas</h3>
+<div class="paragraph">
+<p>A função glutIdleFunc() é usada pelo GLUT para realizar operações em segundo plano ou animações, enquanto não recebe eventos de sistema. O seu protótipo é:</p>
+</div>
+<div class="paragraph">
+<p>void glutIdleFunc(  *func);
+void *func(void);</p>
+</div>
+<div class="paragraph">
+<p>Tomando como base o programa projecoes.c, utilizando a função glutIdleFunc() e crie uma função de retorno idle(). Nesta função, os valores dos ângulos eixox e eixoy devem ser incrementados de valores constantes pequenos e diferentes, de modo a possibilitar uma animação. Utilize a função usleep() para introduzir retardos entre as apresentações dos quadros da animação, tornando mais agradável a visualização. Mantenhas as teclas o e p para chavear entre projeções ortogonais e de perspectiva.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/5/projecoes.c" target="_blank">projecoes.c</a></p>
+</li>
+<li>
+<p><a href="ex/5/projecoesAnimadas.c" target="_blank">projecoesAnimadas.c</a></p>
+</li>
+</ul>
+</div>
+<div class="sect3">
+<h4 id="_código_12">5.2.1. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;GL/glut.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+void init(void);
+void display(void);
+void keyboard(unsigned char key, int x, int y);
+void reshape (int w, int h);
+void idle(void);
+
+#define AZUL     0.0, 0.0, 1.0
+#define VERMELHO 1.0, 0.0, 0.0
+#define AMARELO  1.0, 1.0, 0.0
+#define VERDE    0.0, 1.0, 0.0
+#define CYAN     1.0, 0.0, 1.0
+#define LARANJA  0.8, 0.6, 0.1
+#define ROSEO    0.7, 0.1, 0.6
+#define CINZA    0.6, 0.6, 0.6
+
+static GLfloat vertices[30]={
+  0.0,  30.0, 30.0, /* 0 */
+  20.0, 30.0, 30.0, /* 1 */
+  30.0, 20.0, 30.0, /* 2 */
+  30.0,  0.0, 30.0, /* 3 */
+  0.0,   0.0, 30.0, /* 4 */
+  0.0,  30.0,  0.0, /* 5 */
+  30.0, 30.0,  0.0, /* 6 */
+  30.0,  0.0,  0.0, /* 7 */
+  0.0,   0.0,  0.0, /* 8 */
+  30.0, 30.0, 20.0  /* 9 */
+};
+
+static GLubyte frenteIndices[]    = {0,4,3,2,1};
+static GLubyte trasIndices[]      = {5,6,7,8};
+static GLubyte esquerdaIndices[]  = {0,5,8,4};
+static GLubyte direitaIndices[]   = {2,3,7,6,9};
+static GLubyte topoIndices[]      = {0,1,9,6,5};
+static GLubyte fundoIndices[]     = {3,4,8,7};
+static GLubyte trianguloIndices[] = {1,2,9};
+
+static int eixoy, eixox;
+int largura, altura;
+
+int main(int argc, char** argv){
+  int i;
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize (256, 256);
+  glutInitWindowPosition (100, 100);
+  glutCreateWindow (argv[0]);
+  init();
+  glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
+  glutReshapeFunc(reshape);
+  glutMainLoop();
+  return 0;
+}
+
+void init(void){
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glOrtho (-50, 50, -50, 50, -50 , 50);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+}
+
+void reshape (int w, int h){
+  glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+  largura=w;
+  altura=h;
+}
+
+void display(void){
+  glPushMatrix();
+  glRotatef ((GLfloat) eixoy, 0.0, 1.0, 0.0);
+  glRotatef ((GLfloat) eixox, 1.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+  glColor3f (AZUL); /* frente */
+  glDrawElements(GL_POLYGON, 5, GL_UNSIGNED_BYTE, frenteIndices);
+
+  glColor3f (AMARELO); /* esquerda */
+  glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_BYTE, esquerdaIndices);
+
+  glColor3f (VERMELHO); /* tras */
+  glDrawElements(GL_POLYGON, 4, GL_UNSIGNED_BYTE, trasIndices);
+
+  glColor3f (VERDE); /* direita */
+  glDrawElements(GL_POLYGON, 5, GL_UNSIGNED_BYTE, direitaIndices);
+
+  glColor3f (CYAN); /* topo */
+  glDrawElements(GL_POLYGON, 5, GL_UNSIGNED_BYTE, topoIndices);
+
+  glColor3f (LARANJA); /* fundo */
+  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_BYTE, fundoIndices);
+
+  glColor3f (CINZA); /* triangulo */
+  glDrawElements(GL_POLYGON, 3, GL_UNSIGNED_BYTE, trianguloIndices);
+
+  glDisableClientState (GL_VERTEX_ARRAY);
+
+  glPopMatrix();
+
+  glutSwapBuffers();
+
+  glutIdleFunc(idle);
+}
+
+void keyboard(unsigned char key, int x, int y){
+  switch (key) {
+  case 27:
+    exit(0);
+    break;
+  case 'a':
+    printf("%d, %d\n",x,y);
+    break;
+  case 'p':
+    glLoadIdentity();
+    gluPerspective(65.0, (GLfloat) largura/(GLfloat) altura, 20.0, 120.0);
+    gluLookAt(0, 0, -90, 0, 0, 0, 0, 1, 0);
+    glutPostRedisplay();
+    break;
+  case 'o':
+    glLoadIdentity();
+    glOrtho (-50, 50, -50, 50, -50 , 50);
+    glutPostRedisplay();
+    break;
+  }
+}
+void idle(void) {
+
+  eixox = (eixox + 1) % 360;
+  eixoy = (eixoy + 1) % 360;
+  glutPostRedisplay();
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_12">5.2.2. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/5/projecoesAnimadas1.png" alt="projecoesAnimadas1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/5/projecoesAnimadas2.png" alt="projecoesAnimadas2">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-02 14:54:16 BRT
+Last updated 2015-09-14 15:27:20 BRT
 </div>
 </div>
 </body>
