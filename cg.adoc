@@ -22,8 +22,8 @@ Exemplo
 
 .Arquivos:
 
-* link:ex/Makefile[Makefile, window="_blank"] 
-* link:ex/teste.c[teste.c, window="_blank"] 
+* link:ex/Makefile[Makefile, window="_blank"]
+* link:ex/teste.c[teste.c, window="_blank"]
 
 .Comando:
 ----
@@ -266,3 +266,54 @@ include::{sourcedir}/4/braco-garra-3d.c[]
 image::ex/4/braco-garra-3d1.png[]
 
 image::ex/4/braco-garra-3d3.png[]
+
+== Projeções geométricas
+
+=== Tipos de Projeções
+
+==== Questão
+
+Utilizando o programa projecoes.c como referência, implemente um programa tiposdeprojecoes.c. Este programa deverá conter mais sete opções de teclado: t e f, para exibir o topo e o fundo do objeto, F e T, para mostrar a frente e a face traseira, e e d, para mostrar a faces esquerda e direita, respectivamente, e a tecla c, para mostrar o triângulo do canto.
+
+.Arquivos:
+* link:ex/5/projecoes.c[projecoes.c, window="_blank"]
+* link:ex/5/tiposdeprojecoes.c[tiposdeprojecoes.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/5/tiposdeprojecoes.c[]
+----
+
+==== Imagem
+
+image::ex/5/tiposdeprojecoes1.png[]
+
+image::ex/5/tiposdeprojecoes2.png[]
+
+=== Projeções Animadas
+
+A função glutIdleFunc() é usada pelo GLUT para realizar operações em segundo plano ou animações, enquanto não recebe eventos de sistema. O seu protótipo é:
+
+void glutIdleFunc(  *func);
+void *func(void);
+
+Tomando como base o programa projecoes.c, utilizando a função glutIdleFunc() e crie uma função de retorno idle(). Nesta função, os valores dos ângulos eixox e eixoy devem ser incrementados de valores constantes pequenos e diferentes, de modo a possibilitar uma animação. Utilize a função usleep() para introduzir retardos entre as apresentações dos quadros da animação, tornando mais agradável a visualização. Mantenhas as teclas o e p para chavear entre projeções ortogonais e de perspectiva.
+
+.Arquivos:
+* link:ex/5/projecoes.c[projecoes.c, window="_blank"]
+* link:ex/5/projecoesAnimadas.c[projecoesAnimadas.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/5/projecoesAnimadas.c[]
+----
+
+==== Imagem
+
+image::ex/5/projecoesAnimadas1.png[]
+
+image::ex/5/projecoesAnimadas2.png[]
