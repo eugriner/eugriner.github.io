@@ -14,6 +14,7 @@
 #define COR_DA_TURBINA 0.24,0.24,0.24,1.0 
 #define TEXTURA_DO_PLANO "montanhas.png"
 #define TEXTURA_DO_AVIAO "camuflagem.png"
+#define LOGO_DO_AVIAO "logo.png"
 #define TEXTURA_DA_CHAMA "flame2.png"
 
 
@@ -24,6 +25,7 @@ GLfloat obs[3]={0.0,7.0,0.0};
 GLfloat look[3]={0.0,3.0,0.0};
 GLuint  textura_plano;
 GLuint  textura_aviao;
+GLuint  logo_aviao;
 GLuint  textura_chama;
 
 GLshort texturas=1;
@@ -64,6 +66,13 @@ GLfloat cauda[][3]={
   {0.0,2.0,-1.0},
   {0.0,2.0,0.0},
   {0.0,0.0,2.0}
+};
+
+GLfloat logo[][3]={
+  {0.0,1.0,-0.2},
+  {0.0,1.5,-0.2},
+  {0.0,1.5,0.3},
+  {0.0,1.0,0.3}
 };
 
 void reshape(int width, int height){
@@ -175,6 +184,36 @@ void compoe_jato(void){
   gluCylinder(quadric, 0.4, 0.5, 0.25, 12, 1);
   glPopMatrix();
   /* end - turbina*/
+
+  if(texturas){
+    glEnable(GL_TEXTURE_2D);  
+  }
+
+  /* logo na cauda*/
+  glBindTexture(GL_TEXTURE_2D,logo_aviao);
+  glColor4f(COR_DA_LOGO);
+  
+  glPushMatrix();
+  glTranslatef(0.01,0,0);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctl[0]); glVertex3fv(logo[3]);
+  glTexCoord2fv(ctl[1]); glVertex3fv(logo[0]);
+  glTexCoord2fv(ctl[2]); glVertex3fv(logo[1]);
+  glTexCoord2fv(ctl[3]); glVertex3fv(logo[2]);
+  glEnd();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(-0.01,0,0);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctl[0]); glVertex3fv(logo[3]);
+  glTexCoord2fv(ctl[1]); glVertex3fv(logo[0]);
+  glTexCoord2fv(ctl[2]); glVertex3fv(logo[1]);
+  glTexCoord2fv(ctl[3]); glVertex3fv(logo[2]);
+  glEnd();
+  glPopMatrix();
+  /*end - logo na cauda*/
+
 
   /* cabine do piloto */
   glDisable(GL_TEXTURE_2D);
@@ -312,6 +351,7 @@ void keyboard(unsigned char key, int x, int y){
 void carregar_texturas(void){
   textura_plano = png_texture_load(TEXTURA_DO_PLANO, NULL, NULL);
   textura_aviao = png_texture_load(TEXTURA_DO_AVIAO, NULL, NULL);
+  logo_aviao = png_texture_load(LOGO_DO_AVIAO, NULL, NULL);
   textura_chama = png_texture_load(TEXTURA_DA_CHAMA, NULL, NULL);
 }
 

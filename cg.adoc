@@ -317,3 +317,68 @@ include::{sourcedir}/5/projecoesAnimadas.c[]
 image::ex/5/projecoesAnimadas1.png[]
 
 image::ex/5/projecoesAnimadas2.png[]
+
+== Modelagem de Sólidos
+
+=== Super Jato
+
+==== Questão
+
+Utilizando o programa exemplos/jato.c como referência, implemente um programa superjato.c. Caso você ainda não tenha notado, o avião a jato deste exemplo não possui uma turbina. Faça-o mais interessante, projetando essa turbina e acoplando-a à parte traseira do jato no seu novo programa. O modelo da turbina fica a seu gosto. Acrescente também dois mísseis sob as asas.
+
+.Arquivos:
+* link:ex/8/Makefile[Makefile, window="_blank"]
+* link:ex/8/jato.c[jato.c, window="_blank"]
+* link:ex/8/png_texture.h[png_texture.h, window="_blank"]
+* link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
+* link:ex/8/montanhas.png[montanhas.png, window="_blank"]
+* link:ex/8/superjato.c[superjato.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/8/superjato.c[]
+----
+
+==== Imagem
+
+image::ex/8/superjato1.png[]
+
+image::ex/8/superjato2.png[]
+
+image::ex/8/superjato3.png[]
+
+image::ex/8/superjato4.png[]
+
+==== Comentário
+
+Para ligar e desligar a turbina precione a tecla 'o'.
+
+==== Questão
+
+Crie um logotipo utilizando um programa de manipulação de imagens de sua preferência. Salve-o no formato Iris RGB e mapeie-o na parte superior da asa, como mostra a Figura Exemplo de logotipo para o superjato.
+
+image::ex/8/exemplo.svg[]
+
+.Arquivos:
+* link:ex/8/Makefile[Makefile, window="_blank"]
+* link:ex/8/superjato.c[superjato.c, window="_blank"]
+* link:ex/8/png_texture.h[png_texture.h, window="_blank"]
+* link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
+* link:ex/8/montanhas.png[montanhas.png, window="_blank"]
+* link:ex/8/superjatologo.c[superjatologo.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/8/superjatologo.c[]
+----
+
+==== Imagem
+
+image::ex/8/superjatologo1.png[]
+
+image::ex/8/superjatologo2.png[]
+
