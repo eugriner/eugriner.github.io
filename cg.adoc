@@ -414,7 +414,7 @@ Quanto maior a ordem, menos flexível e suave a curva fica. O resultado fica evi
 Compare curvas de Beziér com NURBS considerando ordens iguais para ambas as curvas.
 
 ==== Comentário
-É possível verificar que <<bezier>> é mais suave e <<nurbs>> tem uma influencia mais forte dos vertices controle.
+É possível verificar que <<bezier>> é mais suave, uma interpolação do ponto inicial ao final sofrendo interferencia dos vertices de controle. E <<nurbs>> tem uma influencia forte dos vertices controle sendo muito mais maleável.
 
 == Superfícies no espaço
 
