@@ -479,7 +479,6 @@ Crie um logotipo utilizando um programa de manipulação de imagens de sua prefe
 image::ex/8/exemplo.svg[]
 
 .Arquivos:
-* link:ex/8/Makefile[Makefile, window="_blank"]
 * link:ex/8/superjato.c[superjato.c, window="_blank"]
 * link:ex/8/png_texture.h[png_texture.h, window="_blank"]
 * link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
