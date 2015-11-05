@@ -26,12 +26,12 @@ GLfloat perto   =-5;
 enum {BEZIER, NURBS};
 GLint spline;
 GLUnurbsObj *nc;
-GLfloat nos[10]={0.0, 0.0, 0.0, 0.0, 1.0, 2.5, 3.0, 3.0, 3.0, 6.0};
+GLfloat nos[10]={0.0, 0.0, 0.0, 0.0, 1.0, 2.5, 3.0, 3.0, 3.0, 3.0};
 GLint nNos=10;
 
 GLint matrizViewport[4];
 GLdouble matrizModelview[16], matrizProjecao[16];
-GLint yreal;  /*  posição da coordenada y no OpenGL */
+GLint yreal;  /*  posiÃ§Ã£o da coordenada y no OpenGL */
 GLdouble wx, wy, wz;  /*  coordenadas no mundo real: x, y, z  */
 
 void display(void){

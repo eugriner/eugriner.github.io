@@ -11,7 +11,7 @@ XLIBS = -L/usr/X11/lib -L/usr/X11R6/lib -lX11
 INCDIR = /usr/include
 LIBDIR = /usr/lib
 
-GL_LIBS = -L$(LIBDIR) -lglut -lGLU -lGL -lm $(XLIBS)
+GL_LIBS = -L$(LIBDIR) -lglut -lGLU -lGL -lm -lpng $(XLIBS)
 
 LIB_DEP = $(LIBDIR)/$(GL_LIB)
 

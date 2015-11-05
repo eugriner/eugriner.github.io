@@ -10,12 +10,8 @@
 #define COORD_TEXTURA_AVIAO 1.0
 #define COR_DO_PLANO 0.52,0.52,0.78,1.0
 #define COR_DO_AVIAO 0.3,0.52,0.18,1.0
-#define COR_DA_LOGO 0.7,0.52,0.58,1.0
-#define COR_DA_TURBINA 0.24,0.24,0.24,1.0 
 #define TEXTURA_DO_PLANO "montanhas.png"
 #define TEXTURA_DO_AVIAO "camuflagem.png"
-#define LOGO_DO_AVIAO "logo.png"
-#define TEXTURA_DA_CHAMA "flame2.png"
 
 
 GLint WIDTH =800;
@@ -25,11 +21,8 @@ GLfloat obs[3]={0.0,7.0,0.0};
 GLfloat look[3]={0.0,3.0,0.0};
 GLuint  textura_plano;
 GLuint  textura_aviao;
-GLuint  logo_aviao;
-GLuint  textura_chama;
 
 GLshort texturas=1;
-GLshort flame_is_on=1;
 GLfloat tetaxz=0;
 GLfloat raioxz=6;
 GLuint  jato;
@@ -48,32 +41,6 @@ GLfloat cta[4][2]={
   {-COORD_TEXTURA_AVIAO,+COORD_TEXTURA_AVIAO}
 };
 
-  GLfloat ctl[4][2]={
-    {0,0},
-    {1,0},
-    {1,1},
-    {0,1}
-  };
-
-GLfloat asa[][3]={
-  {-4.0,0.0,0.0},
-  {+4.0,0.0,0.0},
-  {0.0,0.0,3.0}
-};
-
-GLfloat cauda[][3]={
-  {0.0,0.0,0.0},
-  {0.0,2.0,-1.0},
-  {0.0,2.0,0.0},
-  {0.0,0.0,2.0}
-};
-
-GLfloat logo[][3]={
-  {0.0,1.0,-0.2},
-  {0.0,1.5,-0.2},
-  {0.0,1.5,0.3},
-  {0.0,1.0,0.3}
-};
 
 void reshape(int width, int height){
   WIDTH=width;
@@ -88,6 +55,18 @@ void reshape(int width, int height){
 void compoe_jato(void){
   GLUquadricObj *quadric;
 
+  GLfloat asa[][3]={
+    {-4.0,0.0,0.0},
+    {+4.0,0.0,0.0},
+    {0.0,0.0,3.0}
+  };
+
+  GLfloat cauda[][3]={
+    {0.0,0.0,0.0},
+    {0.0,2.0,-1.0},
+    {0.0,2.0,0.0},
+    {0.0,0.0,2.0}
+  };
   /* inicia a composicao do jato */
   jato = glGenLists(1);
   glNewList(jato, GL_COMPILE);
@@ -98,46 +77,11 @@ void compoe_jato(void){
   glTexCoord2fv(cta[1]); glVertex3fv(asa[1]);
   glTexCoord2fv(cta[3]); glVertex3fv(asa[2]);
   glEnd();
-
-  /*missil1*/
-  glPushMatrix();
-  //posiciona
-  glTranslatef(-2, -0.11, 1);
-  quadric = gluNewQuadric();
-  gluQuadricTexture(quadric, GL_TRUE);
-  //bico
-  gluCylinder(quadric, 0.1, 0.0, 0.4, 8, 1);
-  //corpo
-  glTranslatef(0, 0, -0.8);
-  gluCylinder(quadric, 0.1, 0.1, 0.8, 8, 1);
-  //cauda
-  glTranslatef(0, 0, -0.05);
-  gluCylinder(quadric, 0.0, 0.1, 0.05, 8, 1);
-  glPopMatrix();
-
-  /*missil2*/
-  glPushMatrix();
-  //posiciona
-  glTranslatef(2, -0.11, 1);
-  quadric = gluNewQuadric();
-  gluQuadricTexture(quadric, GL_TRUE);
-  //bico
-  gluCylinder(quadric, 0.1, 0.0, 0.4, 8, 1);
-  //corpo
-  glTranslatef(0, 0, -0.8);
-  gluCylinder(quadric, 0.1, 0.1, 0.8, 8, 1);
-  //cauda
-  glTranslatef(0, 0, -0.05);
-  gluCylinder(quadric, 0.0, 0.1, 0.05, 8, 1);
-  glPopMatrix();
   
   /* corpo */
   quadric = gluNewQuadric();
   gluQuadricTexture(quadric, GL_TRUE);
   gluCylinder(quadric, 0.5, 0.5, 4, 12, 3);
-
-  //guarda para turbina
-  glPushMatrix();
   
   /* nariz */
   quadric = gluNewQuadric();
@@ -155,76 +99,15 @@ void compoe_jato(void){
   glTexCoord2fv(cta[3]); glVertex3fv(cauda[3]);
   glEnd();
 
-  /* turbina */
-  //retorna mat para turbina  
-  glPopMatrix();
-  glPushMatrix();
-  glTranslatef(0,0,-1);
-  
-  quadric = gluNewQuadric();
-  if (flame_is_on) {
-    printf("%s\n", "isON");
-    gluQuadricTexture(quadric, GL_TRUE);
-    glBindTexture(GL_TEXTURE_2D,textura_chama);
-    glColor4f(1.0,0.0,0.0,0.5);
-    gluCylinder(quadric, 0.1, 0.497, 1, 12, 1);  
-  }
-
-  glTranslatef(0,0,0.4);
-  glDisable(GL_TEXTURE_2D);
-  if (flame_is_on) {
-    glColor4f(1.0,0.0,0.0,1.0);
-  } else {
-    glColor4f(0.34,0.34,0.34,1.0);
-  }
-  gluCylinder(quadric, 0, 0.495, 0.6, 12, 1);
-  glTranslatef(0,0,0.35);
-  
-  glColor4f(COR_DA_TURBINA);
-  gluCylinder(quadric, 0.4, 0.5, 0.25, 12, 1);
-  glPopMatrix();
-  /* end - turbina*/
-
-  if(texturas){
-    glEnable(GL_TEXTURE_2D);  
-  }
-
-  /* logo na cauda*/
-  glBindTexture(GL_TEXTURE_2D,logo_aviao);
-  glColor4f(COR_DA_LOGO);
-  
-  glPushMatrix();
-  glTranslatef(0.01,0,0);
-  glBegin(GL_QUADS);
-  glTexCoord2fv(ctl[0]); glVertex3fv(logo[3]);
-  glTexCoord2fv(ctl[1]); glVertex3fv(logo[0]);
-  glTexCoord2fv(ctl[2]); glVertex3fv(logo[1]);
-  glTexCoord2fv(ctl[3]); glVertex3fv(logo[2]);
-  glEnd();
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslatef(-0.01,0,0);
-  glBegin(GL_QUADS);
-  glTexCoord2fv(ctl[0]); glVertex3fv(logo[3]);
-  glTexCoord2fv(ctl[1]); glVertex3fv(logo[0]);
-  glTexCoord2fv(ctl[2]); glVertex3fv(logo[1]);
-  glTexCoord2fv(ctl[3]); glVertex3fv(logo[2]);
-  glEnd();
-  glPopMatrix();
-  /*end - logo na cauda*/
-
-
   /* cabine do piloto */
-  glDisable(GL_TEXTURE_2D);
   glTranslatef(0,0.3,3.5);
   glPushMatrix();
   glScalef(0.7,0.7,2.0);
   quadric=gluNewQuadric();
   glColor4f(0.3,0.5,1,0.5);
+  glDisable(GL_TEXTURE_2D);
   gluSphere(quadric,0.5,12,12);
   glPopMatrix();
-
 
   /* termina a composicao do jato*/
   glEndList();
@@ -255,7 +138,6 @@ void display(void){
 
   // grava a transformacao atual
   glPushMatrix();
-  //plano texturizado
   glColor4f(COR_DO_PLANO);
   glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
   glBindTexture(GL_TEXTURE_2D,textura_plano);
@@ -266,7 +148,6 @@ void display(void){
   glTexCoord2fv(ctp[3]);  glVertex3f(-10,0,-10);
   glEnd();
 
-  //aviao texturizado
   glTranslatef(0.0,2.0,-3.0);
   glColor4f(COR_DO_AVIAO);
   glBindTexture(GL_TEXTURE_2D,textura_aviao);
@@ -339,20 +220,12 @@ void keyboard(unsigned char key, int x, int y){
     }
     glutPostRedisplay();
     break;
-  case 'o':
-    flame_is_on = !flame_is_on;
-    compoe_jato();
-    //printf("%i\n", flame_is_on);
-    glutPostRedisplay();
-    break;
   }
 }
 
 void carregar_texturas(void){
   textura_plano = png_texture_load(TEXTURA_DO_PLANO, NULL, NULL);
   textura_aviao = png_texture_load(TEXTURA_DO_AVIAO, NULL, NULL);
-  logo_aviao = png_texture_load(LOGO_DO_AVIAO, NULL, NULL);
-  textura_chama = png_texture_load(TEXTURA_DA_CHAMA, NULL, NULL);
 }
 
 void init(){

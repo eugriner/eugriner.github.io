@@ -455,6 +455,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_projeções_animadas">5.2. Projeções Animadas</a></li>
 </ul>
 </li>
+<li><a href="#_curvas_no_plano">6. Curvas no plano</a>
+<ul class="sectlevel2">
+<li><a href="#_funcionalidades">6.1. Funcionalidades</a></li>
+<li><a href="#_splines_nurbs">6.2. Splines Nurbs</a></li>
+<li><a href="#_ordem_splines_nurbs">6.3. Ordem Splines Nurbs</a></li>
+<li><a href="#_comparação">6.4. Comparação</a></li>
+</ul>
+</li>
+<li><a href="#_superfícies_no_espaço">7. Superfícies no espaço</a>
+<ul class="sectlevel2">
+<li><a href="#_spline_inter">7.1. Spline Inter</a></li>
+</ul>
+</li>
+<li><a href="#_modelagem_de_sólidos">8. Modelagem de Sólidos</a>
+<ul class="sectlevel2">
+<li><a href="#_super_jato">8.1. Super Jato</a></li>
+<li><a href="#_super_jato_com_logo">8.2. Super Jato com Logo</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -2364,10 +2383,1990 @@ void idle(void) {
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_curvas_no_plano">6. Curvas no plano</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_funcionalidades">6.1. Funcionalidades</h3>
+<div class="sect3">
+<h4 id="_questão_12">6.1.1. Questão</h4>
+<div class="paragraph">
+<p>Comente as funcionalidades das curvas de Bézier e NURBS utilizadas neste exemplo.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/6/splines2d.c" target="_blank">splines2d.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_13">6.1.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;stdlib.h&gt;
+#include &lt;GL/glut.h&gt;
+#include &lt;math.h&gt;
+
+GLint nVertices=6;
+GLfloat vertices[6][3] = {
+  {-4.0,  0.0, 0.0},
+  {-4.0, +4.0, 0.0},
+  {+4.0, -4.0, 0.0},
+  {-4.0, -4.0, 0.0},
+  {+4.0, +4.0, 0.0},
+  {+4.0,  0.0, 0.0}
+};
+
+GLint largura, altura;
+GLint mudaCurva=0;
+GLint verticeCorrente=0;
+
+GLfloat esquerda=-5;
+GLfloat direita =+5;
+GLfloat fundo   =-5;
+GLfloat topo    =+5;
+GLfloat longe   =+5;
+GLfloat perto   =-5;
+
+enum {BEZIER, NURBS};
+GLint spline;
+GLUnurbsObj *nc;
+GLfloat nos[10]={0.0, 0.0, 0.0, 0.0, 1.0, 2.5, 3.0, 3.0, 3.0, 3.0};
+GLint nNos=10;
+
+GLint matrizViewport[4];
+GLdouble matrizModelview[16], matrizProjecao[16];
+GLint yreal;  /*  posição da coordenada y no OpenGL */
+GLdouble wx, wy, wz;  /*  coordenadas no mundo real: x, y, z  */
+
+void display(void){
+  int i;
+  glClear(GL_COLOR_BUFFER_BIT);
+  switch(spline){
+  case BEZIER:
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, nVertices, &amp;vertices[0][0]);
+    glBegin(GL_LINE_STRIP);
+    for (i = 0; i &lt;= 30; i++){
+      glEvalCoord1f((GLfloat) i/30.0);
+    }
+    glEnd();
+    break;
+  case NURBS:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, nos, 3, &amp;vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  }
+  glPointSize(5.0);
+  glColor3f(1.0, 1.0, 0.0);
+  glBegin(GL_LINE_STRIP);
+  for (i = 0; i &lt; nVertices; i++)
+    glVertex3fv(&amp;vertices[i][0]);
+  glEnd();
+  glColor3f(1.0, 0.0, 0.0);
+  glBegin(GL_POINTS);
+  for (i = 0; i &lt; nVertices; i++)
+    glVertex3fv(&amp;vertices[i][0]);
+  glEnd();
+  glColor3f(1.0, 1.0, 1.0);
+  glFlush();
+  glutSwapBuffers();
+}
+
+void init(void){
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  spline=BEZIER;
+  nc= gluNewNurbsRenderer();
+  gluNurbsProperty(nc, GLU_SAMPLING_TOLERANCE, 5.0);
+  glEnable(GL_MAP1_VERTEX_3);
+  display();
+}
+
+void reshape(int w, int h)
+{
+  glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+  glMatrixMode(GL_PROJECTION);
+  largura=w;
+  altura=h;
+  glLoadIdentity();
+  glOrtho(esquerda,direita, fundo, topo, perto, longe);
+  glMatrixMode(GL_MODELVIEW);
+  glGetIntegerv(GL_VIEWPORT, matrizViewport);
+  glGetDoublev(GL_MODELVIEW_MATRIX, matrizModelview);
+  glGetDoublev(GL_PROJECTION_MATRIX, matrizProjecao);
+  glLoadIdentity();
+  glutSwapBuffers();
+}
+
+/* ARGSUSED1 */
+void keyboard(unsigned char key, int x, int y)
+{
+  switch (key) {
+  case 'b':
+    spline = BEZIER;
+    glutPostRedisplay();
+    break;
+  case 'n':
+    spline = NURBS;
+    glutPostRedisplay();
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
+}
+
+void proximidade(){
+  int i;
+  double tam=0, tamin=32000;
+  verticeCorrente=0;
+  for(i=0; i&lt;nVertices; i++){
+    tam = (wx-vertices[i][0])*(wx-vertices[i][0])+
+      (wy-vertices[i][1])*(wy-vertices[i][1]);
+    if(tam &lt; tamin){
+      tamin=tam;
+      verticeCorrente=i;
+    }
+  }
+  tamin=sqrt(tamin);
+  if(tamin &gt; 0.5){
+    mudaCurva=0;
+  }
+}
+
+void mouse(int button, int state, int x, int y){
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      yreal = matrizViewport[3] - (GLint) y - 1;
+      gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+		    matrizModelview, matrizProjecao, matrizViewport,
+		    &amp;wx, &amp;wy, &amp;wz);
+      mudaCurva=1;
+      proximidade();
+    }
+    if (state == GLUT_UP) {
+      mudaCurva=0;
+    }
+    break;
+  }
+}
+
+void motion(int x, int y){
+  if(mudaCurva){
+    yreal = matrizViewport[3] - (GLint) y - 1;
+    gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+		  matrizModelview, matrizProjecao, matrizViewport,
+		  &amp;wx, &amp;wy, &amp;wz);
+    vertices[verticeCorrente][0]=wx;
+    vertices[verticeCorrente][1]=wy;
+    glutPostRedisplay();
+  }
+}
+
+int main(int argc, char** argv){
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize(500, 500);
+  glutInitWindowPosition(100, 100);
+  glutCreateWindow(argv[0]);
+  init();
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(keyboard);
+  glutMotionFunc(motion);
+  glutMouseFunc(mouse);
+  glutMainLoop();
+  return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_13">6.1.3. Imagem</h4>
+<div id="bezier" class="imageblock">
+<div class="content">
+<img src="ex/6/splines2d1.png" alt="splines2d1">
+</div>
+<div class="title">Figure 1. Bézier</div>
+</div>
+<div id="nurbs" class="imageblock">
+<div class="content">
+<img src="ex/6/splines2d2.png" alt="splines2d2">
+</div>
+<div class="title">Figure 2. NURBS</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comentário_2">6.1.4. Comentário</h4>
+<div class="paragraph">
+<p>A curva de Bézier é uma curva polinomial expressa como a interpolação linear entre alguns pontos representativos, chamados de pontos de controle. Ela foi desenvolvida em 1962 e seu nome é devido a quem publicou o primeiro trabalho sobre a curva, o francês Pierre Bézier, funcionário da Renault, que a usou para o design de automóveis. Ela foi estruturada a partir do algoritmo de Paul de Casteljau, da Citroën, em 1957, e foi formalizada na década de 60 (WIKIPEDIA).
+São curvas suaves, mas muitas vezes aproximam-se a forma desejada, e não descrevendo esta fielmente, como em um circulo de Bézier.</p>
+</div>
+<div class="paragraph">
+<p>A NURBS é mais flexível que Bézier podendo ser mais "nervosa" quando necessário para representar qualquer forma. Ela é altamente difundida em CADs.</p>
+</div>
+<div class="paragraph">
+<p>É importante frizar que os dois tipos de curvas tem o objetivo de facilitar a modelagem e manipulação de curvas.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_splines_nurbs">6.2. Splines Nurbs</h3>
+<div class="sect3">
+<h4 id="_questão_13">6.2.1. Questão</h4>
+<div class="paragraph">
+<p>Utilizando o programa splines2d.c como referência, implemente um programa splinesnurbs.c. Quando a tecla u for pressionada, a NURBS deverá ser desenhada utilizando um vetor de nós uniforme. Quando a tecla o for pressionada, a NURBS deverá ser desenhada utilizando um vetor de nós uniforme aberto. Quando a tecla n for pressionada, a NURBS deverá ser desenhada utilizando um vetor de nós não uniforme.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/6/splines2d.c" target="_blank">splines2d.c</a></p>
+</li>
+<li>
+<p><a href="ex/6/splinesnurbs.c" target="_blank">splinesnurbs.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_14">6.2.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;stdlib.h&gt;
+#include &lt;GL/glut.h&gt;
+#include &lt;math.h&gt;
+
+GLint nVertices=6;
+GLfloat vertices[6][3] = {
+  {-4.0,  0.0, 0.0},
+  {-4.0, +4.0, 0.0},
+  {+4.0, -4.0, 0.0},
+  {-4.0, -4.0, 0.0},
+  {+4.0, +4.0, 0.0},
+  {+4.0,  0.0, 0.0}
+};
+
+GLint largura, altura;
+GLint mudaCurva=0;
+GLint verticeCorrente=0;
+
+GLfloat esquerda=-5;
+GLfloat direita =+5;
+GLfloat fundo   =-5;
+GLfloat topo    =+5;
+GLfloat longe   =+5;
+GLfloat perto   =-5;
+
+enum {BEZIER, N_UNIFORM, N_OPEN, N_NOT_UNIFORM};
+GLint spline;
+GLUnurbsObj *nc;
+GLfloat uniformKnots[10]={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+GLfloat openKnots[10]={0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0};
+GLfloat notUniformKnots[10]={0.0, 1.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0, 103.0};
+GLint nNos=10;
+
+GLint matrizViewport[4];
+GLdouble matrizModelview[16], matrizProjecao[16];
+GLint yreal;  /*  posicao da coordenada y no OpenGL */
+GLdouble wx, wy, wz;  /*  coordenadas no mundo real: x, y, z  */
+
+void display(void){
+  int i;
+  glClear(GL_COLOR_BUFFER_BIT);
+  switch(spline){
+  case BEZIER:
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, nVertices, &amp;vertices[0][0]);
+    glBegin(GL_LINE_STRIP);
+    for (i = 0; i &lt;= 30; i++){
+      glEvalCoord1f((GLfloat) i/30.0);
+    }
+    glEnd();
+    break;
+  case N_UNIFORM:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, uniformKnots, 3, &amp;vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  case N_OPEN:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, openKnots, 3, &amp;vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  case N_NOT_UNIFORM:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, notUniformKnots, 3, &amp;vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  }
+  glPointSize(5.0);
+  glColor3f(1.0, 1.0, 0.0);
+  glBegin(GL_LINE_STRIP);
+  for (i = 0; i &lt; nVertices; i++)
+    glVertex3fv(&amp;vertices[i][0]);
+  glEnd();
+  glColor3f(1.0, 0.0, 0.0);
+  glBegin(GL_POINTS);
+  for (i = 0; i &lt; nVertices; i++)
+    glVertex3fv(&amp;vertices[i][0]);
+  glEnd();
+  glColor3f(1.0, 1.0, 1.0);
+  glFlush();
+  glutSwapBuffers();
+}
+
+void init(void){
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  spline=BEZIER;
+  nc= gluNewNurbsRenderer();
+  gluNurbsProperty(nc, GLU_SAMPLING_TOLERANCE, 5.0);
+  glEnable(GL_MAP1_VERTEX_3);
+  display();
+}
+
+void reshape(int w, int h)
+{
+  glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+  glMatrixMode(GL_PROJECTION);
+  largura=w;
+  altura=h;
+  glLoadIdentity();
+  glOrtho(esquerda,direita, fundo, topo, perto, longe);
+  glMatrixMode(GL_MODELVIEW);
+  glGetIntegerv(GL_VIEWPORT, matrizViewport);
+  glGetDoublev(GL_MODELVIEW_MATRIX, matrizModelview);
+  glGetDoublev(GL_PROJECTION_MATRIX, matrizProjecao);
+  glLoadIdentity();
+  glutSwapBuffers();
+}
+
+/* ARGSUSED1 */
+void keyboard(unsigned char key, int x, int y)
+{
+  switch (key) {
+  case 'b':
+    spline = BEZIER;
+    break;
+  case 'u':
+    spline = N_UNIFORM;
+    break;
+  case 'o':
+    spline = N_OPEN;
+    break;
+  case 'n':
+    spline = N_NOT_UNIFORM;
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
+  glutPostRedisplay();
+}
+
+void proximidade(){
+  int i;
+  double tam=0, tamin=32000;
+  verticeCorrente=0;
+  for(i=0; i&lt;nVertices; i++){
+    tam = (wx-vertices[i][0])*(wx-vertices[i][0])+
+      (wy-vertices[i][1])*(wy-vertices[i][1]);
+    if(tam &lt; tamin){
+      tamin=tam;
+      verticeCorrente=i;
+    }
+  }
+  tamin=sqrt(tamin);
+  if(tamin &gt; 0.5){
+    mudaCurva=0;
+  }
+}
+
+void mouse(int button, int state, int x, int y){
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      yreal = matrizViewport[3] - (GLint) y - 1;
+      gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+        matrizModelview, matrizProjecao, matrizViewport,
+        &amp;wx, &amp;wy, &amp;wz);
+      mudaCurva=1;
+      proximidade();
+    }
+    if (state == GLUT_UP) {
+      mudaCurva=0;
+    }
+    break;
+  }
+}
+
+void motion(int x, int y){
+  if(mudaCurva){
+    yreal = matrizViewport[3] - (GLint) y - 1;
+    gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+      matrizModelview, matrizProjecao, matrizViewport,
+      &amp;wx, &amp;wy, &amp;wz);
+    vertices[verticeCorrente][0]=wx;
+    vertices[verticeCorrente][1]=wy;
+    glutPostRedisplay();
+  }
+}
+
+int main(int argc, char** argv){
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize(500, 500);
+  glutInitWindowPosition(100, 100);
+  glutCreateWindow(argv[0]);
+  init();
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(keyboard);
+  glutMotionFunc(motion);
+  glutMouseFunc(mouse);
+  glutMainLoop();
+  return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_14">6.2.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/6/splinesnurbs1.png" alt="splinesnurbs1">
+</div>
+<div class="title">Figure 3. Uniforme</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/6/splinesnurbs2.png" alt="splinesnurbs2">
+</div>
+<div class="title">Figure 4. Aberta</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/6/splinesnurbs3.png" alt="splinesnurbs3">
+</div>
+<div class="title">Figure 5. Não uniforme</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_ordem_splines_nurbs">6.3. Ordem Splines Nurbs</h3>
+<div class="sect3">
+<h4 id="_questão_14">6.3.1. Questão</h4>
+<div class="paragraph">
+<p>Qual a influência do vetor de nós foi utilizado sobre o comportamento das curvas tipo NURBS? Comente o resultado que obteve para curvas de ordens 3 e 5.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/6/splines2d.c" target="_blank">splines2d.c</a></p>
+</li>
+<li>
+<p><a href="ex/6/splinesnurbsordem.c" target="_blank">splinesnurbsordem.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_15">6.3.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;stdlib.h&gt;
+#include &lt;GL/glut.h&gt;
+#include &lt;math.h&gt;
+
+GLint nVertices=6;
+GLfloat vertices[6][3] = {
+  {-4.0,  0.0, 0.0},
+  {-4.0, +4.0, 0.0},
+  {+4.0, -4.0, 0.0},
+  {-4.0, -4.0, 0.0},
+  {+4.0, +4.0, 0.0},
+  {+4.0,  0.0, 0.0}
+};
+
+GLint largura, altura;
+GLint mudaCurva=0;
+GLint verticeCorrente=0;
+
+GLfloat esquerda=-5;
+GLfloat direita =+5;
+GLfloat fundo   =-5;
+GLfloat topo    =+5;
+GLfloat longe   =+5;
+GLfloat perto   =-5;
+
+enum {BEZIER, NURBS, N_UNIFORM, N_OPEN, N_NOT_UNIFORM};
+GLint spline;
+GLUnurbsObj *nc;
+
+//ORDEM
+
+GLint ORDEM=3;
+GLint nNos=nVertices+ORDEM;
+const int nknots = 9;
+GLfloat uniformKnots[nknots]   ={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
+GLfloat openKnots[nknots]      ={0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 4.0, 4.0};
+GLfloat notUniformKnots[nknots]={0.0, 1.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0};
+
+/*GLint ORDEM=4;
+GLint nNos=nVertices+ORDEM;
+const int nknots = 10;
+GLfloat uniformKnots[nknots]   ={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+GLfloat openKnots[nknots]      ={0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0};
+GLfloat notUniformKnots[nknots]={0.0, 1.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0, 103.0};
+
+GLint ORDEM=5;
+GLint nNos=nVertices+ORDEM;
+const int nknots = 11;
+GLfloat uniformKnots[nknots]   ={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
+GLfloat openKnots[nknots]      ={0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+GLfloat notUniformKnots[nknots]={0.0, 1.0, 2.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0, 103.0};*/
+
+GLint matrizViewport[4];
+GLdouble matrizModelview[16], matrizProjecao[16];
+GLint yreal;  /*  posicao da coordenada y no OpenGL */
+GLdouble wx, wy, wz;  /*  coordenadas no mundo real: x, y, z  */
+
+/*
+void gluNurbsCurve( GLUnurbsObj *nobj, GLint nknots, GLfloat *knot, GLint stride,
+                    GLfloat *ctlarray, GLint order, GLenum type )
+gluNurbsCurve(nc, nNos, uniformKnots, 3, &amp;vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
+
+-PARAMETERS
+nobj
+  Specifies the NURBS object (created with gluNewNurbsRenderer).
+
+nknots
+  Specifies the number of knots in knot. nknots equals the number
+  of control points plus the order.
+
+knot
+  Specifies an array of nknots nondecreasing knot values.
+
+stride
+  Specifies the offset (as a number of single-precision floating-point
+  values) between successive curve control points.
+
+ctlarray
+  Specifies a pointer to an array of control points. The coordinates
+  must agree with type, specified below.
+
+order
+  Specifies the order of the NURBS curve. order equals degree + 1,
+  hence a cubic curve has an order of 4.
+
+type
+  Specifies the type of the curve. If this curve is defined within
+  a gluBeginCurve/gluEndCurve pair, then the type can be any of the
+  valid one-dimensional evaluator types (such as GL_MAP1_VERTEX_3 or
+  GL_MAP1_COLOR_4). Between a gluBeginTrim/gluEndTrim pair, the only
+  valid types are GLU_MAP1_TRIM_2 and GLU_MAP1_TRIM_3.
+*/
+void display(void){
+  int i;
+  glClear(GL_COLOR_BUFFER_BIT);
+  switch(spline){
+  case BEZIER:
+    glMap1f(GL_MAP1_VERTEX_3, 0.0, 1.0, 3, nVertices, &amp;vertices[0][0]);
+    glBegin(GL_LINE_STRIP);
+    for (i = 0; i &lt;= 30; i++){
+      glEvalCoord1f((GLfloat) i/30.0);
+    }
+    glEnd();
+    break;
+  case N_UNIFORM:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, uniformKnots, 3, &amp;vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  case N_OPEN:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, openKnots, 3, &amp;vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  case N_NOT_UNIFORM:
+    gluBeginCurve(nc);
+    gluNurbsCurve(nc, nNos, notUniformKnots, 3, &amp;vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
+    gluEndCurve(nc);
+    break;
+  }
+  glPointSize(5.0);
+  glColor3f(1.0, 1.0, 0.0);
+  glBegin(GL_LINE_STRIP);
+  for (i = 0; i &lt; nVertices; i++)
+    glVertex3fv(&amp;vertices[i][0]);
+  glEnd();
+  glColor3f(1.0, 0.0, 0.0);
+  glBegin(GL_POINTS);
+  for (i = 0; i &lt; nVertices; i++)
+    glVertex3fv(&amp;vertices[i][0]);
+  glEnd();
+  glColor3f(1.0, 1.0, 1.0);
+  glFlush();
+  glutSwapBuffers();
+}
+
+void init(void){
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  spline=BEZIER;
+  nc= gluNewNurbsRenderer();
+  // gluNurbsProperty(nc, GLU_SAMPLING_TOLERANCE, 5.0);
+  glEnable(GL_MAP1_VERTEX_3);
+  display();
+}
+
+void reshape(int w, int h)
+{
+  glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+  glMatrixMode(GL_PROJECTION);
+  largura=w;
+  altura=h;
+  glLoadIdentity();
+  glOrtho(esquerda,direita, fundo, topo, perto, longe);
+  glMatrixMode(GL_MODELVIEW);
+  glGetIntegerv(GL_VIEWPORT, matrizViewport);
+  glGetDoublev(GL_MODELVIEW_MATRIX, matrizModelview);
+  glGetDoublev(GL_PROJECTION_MATRIX, matrizProjecao);
+  glLoadIdentity();
+  glutSwapBuffers();
+}
+
+/* ARGSUSED1 */
+void keyboard(unsigned char key, int x, int y)
+{
+  switch (key) {
+  case 'b':
+    spline = BEZIER;
+    break;
+  case 'u':
+    spline = N_UNIFORM;
+    break;
+  case 'o':
+    spline = N_OPEN;
+    break;
+  case 'n':
+    spline = N_NOT_UNIFORM;
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
+  glutPostRedisplay();
+}
+
+void proximidade(){
+  int i;
+  double tam=0, tamin=32000;
+  verticeCorrente=0;
+  for(i=0; i&lt;nVertices; i++){
+    tam = (wx-vertices[i][0])*(wx-vertices[i][0])+
+      (wy-vertices[i][1])*(wy-vertices[i][1]);
+    if(tam &lt; tamin){
+      tamin=tam;
+      verticeCorrente=i;
+    }
+  }
+  tamin=sqrt(tamin);
+  if(tamin &gt; 0.5){
+    mudaCurva=0;
+  }
+}
+
+void mouse(int button, int state, int x, int y){
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      yreal = matrizViewport[3] - (GLint) y - 1;
+      gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+        matrizModelview, matrizProjecao, matrizViewport,
+        &amp;wx, &amp;wy, &amp;wz);
+      mudaCurva=1;
+      proximidade();
+    }
+    if (state == GLUT_UP) {
+      mudaCurva=0;
+    }
+    break;
+  }
+}
+
+void motion(int x, int y){
+  if(mudaCurva){
+    yreal = matrizViewport[3] - (GLint) y - 1;
+    gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+      matrizModelview, matrizProjecao, matrizViewport,
+      &amp;wx, &amp;wy, &amp;wz);
+    vertices[verticeCorrente][0]=wx;
+    vertices[verticeCorrente][1]=wy;
+    glutPostRedisplay();
+  }
+}
+
+int main(int argc, char** argv){
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize(500, 500);
+  glutInitWindowPosition(100, 100);
+  glutCreateWindow(argv[0]);
+  init();
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(keyboard);
+  glutMotionFunc(motion);
+  glutMouseFunc(mouse);
+  glutMainLoop();
+  return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_15">6.3.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/6/splinesnurbsordem1.png" alt="splinesnurbsordem1">
+</div>
+<div class="title">Figure 6. Uniforme Ordem 3</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/6/splinesnurbsordem2.png" alt="splinesnurbsordem2">
+</div>
+<div class="title">Figure 7. Uniforme Ordem 4</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/6/splinesnurbsordem3.png" alt="splinesnurbsordem3">
+</div>
+<div class="title">Figure 8. Uniforme Ordem 5</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comentário_3">6.3.4. Comentário</h4>
+<div class="paragraph">
+<p>Quanto maior a ordem, menos flexível e suave a curva fica. O resultado fica evidente nas imagens acima.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_comparação">6.4. Comparação</h3>
+<div class="sect3">
+<h4 id="_questão_15">6.4.1. Questão</h4>
+<div class="paragraph">
+<p>Compare curvas de Beziér com NURBS considerando ordens iguais para ambas as curvas.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comentário_4">6.4.2. Comentário</h4>
+<div class="paragraph">
+<p>É possível verificar que <a href="#bezier">Bézier</a> é mais suave e <a href="#nurbs">NURBS</a> tem uma influencia mais forte dos vertices controle.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_superfícies_no_espaço">7. Superfícies no espaço</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_spline_inter">7.1. Spline Inter</h3>
+<div class="sect3">
+<h4 id="_questão_16">7.1.1. Questão</h4>
+<div class="paragraph">
+<p>Utilizando as técnicas de seleção de objetos apresentadas no Capítulo [superficies-espaco], implemente um programa splineinter.c que proporcione um processo de modelagem interativa para este exemplo. Quando pressionar o botão esquerdo do mouse, o usuário deverá poder movimentar os pontos da malha de controle, podendo assim controlar livremente a forma da superfície.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/7/splines3d.c" target="_blank">splines3d.c</a></p>
+</li>
+<li>
+<p><a href="ex/7/splineinter.c" target="_blank">splineinter.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_16">7.1.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;stdlib.h&gt;
+#include &lt;math.h&gt;
+#include &lt;GL/glut.h&gt;
+
+GLint eixox, eixoy, eixoz;
+
+GLint nVertices=4;
+GLfloat vertices[4][4][3];
+
+GLint largura, altura;
+
+GLint mudaCurva=0;
+GLint verticeCorrente=0;
+
+enum {BEZIER, NURBS};
+GLint spline;
+GLUnurbsObj *nc;
+GLfloat nos[8]={0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
+GLint nNos=8;
+
+GLint matrizViewport[4];
+GLdouble matrizModelview[16], matrizProjecao[16];
+GLint yreal;  /*  posição da coordenada y no OpenGL */
+GLdouble wx, wy, wz, wx1, wy1, wz1, wx2, wy2, wz2;  /*  coordenadas no mundo real: x, y, z  */
+
+void gera_superficie(void){
+  int i,j;
+  for(i=0; i&lt;4; i++){
+    for(j=0; j&lt;4; j++){
+      vertices[i][j][0] = 2.0*((GLfloat)i - 1.5);
+      vertices[i][j][1] = 2.0*((GLfloat)j - 1.5);
+
+      if ( (i == 1 || i == 2) &amp;&amp; (j == 1 || j == 2))
+        vertices[i][j][2] = 7.0;
+      else
+        vertices[i][j][2] = -3.0;
+    }
+  }
+}
+void display(void){
+  int i,j;
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glPushMatrix();
+  glRotatef(eixox, 1 ,0 ,0);
+  glRotatef(eixoy, 0 ,1 ,0);
+  glRotatef(eixoz, 0 ,0 ,1);
+  glScalef(0.25, 0.25, 0.25);
+
+  glGetIntegerv(GL_VIEWPORT, matrizViewport);
+  glGetDoublev(GL_MODELVIEW_MATRIX, matrizModelview);
+  glGetDoublev(GL_PROJECTION_MATRIX, matrizProjecao);
+
+  glDisable(GL_LIGHTING);
+  glPushMatrix();
+  glTranslatef(-5,-5,-5);
+  glColor3f(1,1,1);
+  glBegin(GL_LINES);
+  glVertex3f(0,0,0);  glVertex3f(1,0,0);
+  glEnd();
+  glRasterPos3f(1.5,0,0);
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, 'x');
+
+  glBegin(GL_LINES);
+  glVertex3f(0,0,0);  glVertex3f(0,1,0);
+  glEnd();
+  glRasterPos3f(0,1.5,0);
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, 'y');
+
+  glBegin(GL_LINES);
+  glVertex3f(0,0,0);  glVertex3f(0,0,1);
+  glEnd();
+  glRasterPos3f(0,0,1.5);
+  glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, 'z');
+
+  glPopMatrix();
+  glEnable(GL_LIGHTING);
+
+  switch(spline){
+  case BEZIER:
+    glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0, 1, 3*nVertices, 4, &amp;vertices[0][0][0]);
+    glEnable(GL_AUTO_NORMAL);
+    glMapGrid2f(20, 0, 1.0, 20, 0, 1.0);
+    glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    break;
+  case NURBS:
+    gluBeginSurface(nc);
+    gluNurbsSurface(nc, nNos, nos, nNos, nos, 4*3, 3, &amp;vertices[0][0][0], 4, 4, GL_MAP2_VERTEX_3);
+    gluEndSurface(nc);
+    break;
+  }
+  glPointSize(5.0);
+  glColor3f(1.0, 0.0, 0.0);
+  glDisable(GL_LIGHTING);
+  glBegin(GL_POINTS);
+  for(i=0; i&lt;4; i++){
+    for(j=0; j&lt;4; j++){
+      glVertex3fv(&amp;vertices[i][j][0]);
+    }
+  }
+  glEnable(GL_LIGHTING);
+  glEnd();
+
+  glPopMatrix();
+  glFlush();
+
+  glutSwapBuffers();
+}
+
+void init(void){
+  GLfloat mat_diffuse[] = { 0.7, 0.7, 0.7, 1.0 };
+  GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+  GLfloat mat_shininess[] = { 100.0 };
+
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+  glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
+
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_AUTO_NORMAL);
+  glEnable(GL_NORMALIZE);
+
+  gera_superficie();
+
+  nc= gluNewNurbsRenderer();
+  gluNurbsProperty(nc, GLU_SAMPLING_TOLERANCE, 5.0);
+  gluNurbsProperty(nc, GLU_DISPLAY_MODE, GLU_FILL);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glTranslatef (0.0, 0.0, -5.0);
+
+  spline=NURBS;
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glShadeModel(GL_SMOOTH);
+  glEnable(GL_MAP2_VERTEX_3);
+  display();
+}
+
+void reshape(int w, int h){
+  glViewport(0, 0, w, h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective (45.0, (GLdouble)w/(GLdouble)h, 3.0, 8.0);
+  glMatrixMode(GL_MODELVIEW);
+}
+
+/* ARGSUSED1 */
+void keyboard(unsigned char key, int x, int y){
+  switch (key) {
+  case 'x':
+    eixox = (eixox + 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'y':
+    eixoy = (eixoy + 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'z':
+    eixoz = (eixoz + 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'X':
+    eixox = (eixox - 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'Y':
+    eixoy = (eixoy - 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'Z':
+    eixoz = (eixoz - 5) % 360;
+    glutPostRedisplay();
+    break;
+  case 'b':
+    spline = BEZIER;
+    glutPostRedisplay();
+    break;
+  case 'n':
+    spline = NURBS;
+    glutPostRedisplay();
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
+}
+
+/*void proximidade(){
+  int i;
+  double tam=0, tamin=32000;
+  verticeCorrente=0;
+  for(i=0; i&lt;nVertices; i++){
+    tam = (wx-vertices[i][0])*(wx-vertices[i][0])+
+      (wy-vertices[i][1])*(wy-vertices[i][1]);
+    if(tam &lt; tamin){
+      tamin=tam;
+      verticeCorrente=i;
+    }
+  }
+  tamin=sqrt(tamin);
+  if(tamin &gt; 0.5){
+    mudaCurva=0;
+  }
+}*/
+
+void mouse(int button, int state, int x, int y){
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+
+      yreal = matrizViewport[3] - (GLint) y - 1;
+
+      gluUnProject ((GLdouble) x, (GLdouble) yreal, -1.0,
+        matrizModelview, matrizProjecao, matrizViewport,
+        &amp;wx1, &amp;wy1, &amp;wz1);
+
+      gluUnProject ((GLdouble) x, (GLdouble) yreal, 1.0,
+        matrizModelview, matrizProjecao, matrizViewport,
+        &amp;wx2, &amp;wy2, &amp;wz2);
+
+      wx = wx2 - wx1;
+      wy = wy2 - wy1;
+      wz = wz2 - wz1;
+
+      mudaCurva=1;
+
+      // proximidade();
+    }
+
+    if (state == GLUT_UP) {
+      mudaCurva=0;
+    }
+
+    break;
+  }
+}
+
+/*void motion(int x, int y){
+  if(mudaCurva){
+
+    yreal = matrizViewport[3] - (GLint) y - 1;
+
+    gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+        matrizModelview, matrizProjecao, matrizViewport,
+        &amp;wx1, &amp;wy1, &amp;wz1);
+
+    gluUnProject ((GLdouble) x, (GLdouble) yreal, 0.0,
+      matrizModelview, matrizProjecao, matrizViewport,
+      &amp;wx2, &amp;wy2, &amp;wz2);
+
+    vertices[verticeCorrente][0]=wx;
+    vertices[verticeCorrente][1]=wy;
+    vertices[verticeCorrente][2]=wz;
+
+    glutPostRedisplay();
+  }
+}*/
+
+int main(int argc, char** argv){
+  glutInit(&amp;argc, argv);
+  glutInitDisplayMode(GLUT_DEPTH| GLUT_DOUBLE | GLUT_RGB);
+  glutInitWindowSize(500, 500);
+  glutInitWindowPosition(100, 100);
+  glutCreateWindow(argv[0]);
+  init();
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutKeyboardFunc(keyboard);
+  glutMainLoop();
+  return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_16">7.1.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/7/splineinter1.png" alt="splineinter1">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_modelagem_de_sólidos">8. Modelagem de Sólidos</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_super_jato">8.1. Super Jato</h3>
+<div class="sect3">
+<h4 id="_questão_17">8.1.1. Questão</h4>
+<div class="paragraph">
+<p>Utilizando o programa exemplos/jato.c como referência, implemente um programa superjato.c. Caso você ainda não tenha notado, o avião a jato deste exemplo não possui uma turbina. Faça-o mais interessante, projetando essa turbina e acoplando-a à parte traseira do jato no seu novo programa. O modelo da turbina fica a seu gosto. Acrescente também dois mísseis sob as asas.</p>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/8/jato.c" target="_blank">jato.c</a></p>
+</li>
+<li>
+<p><a href="ex/8/png_texture.h" target="_blank">png_texture.h</a></p>
+</li>
+<li>
+<p><a href="ex/8/camuflagem.png" target="_blank">camuflagem.png</a></p>
+</li>
+<li>
+<p><a href="ex/8/montanhas.png" target="_blank">montanhas.png</a></p>
+</li>
+<li>
+<p><a href="ex/8/superjato.c" target="_blank">superjato.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_17">8.1.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;math.h&gt;
+#include &lt;GL/glut.h&gt;
+#include "png_texture.h"
+
+#define PI 3.1415
+
+#define COORD_TEXTURA_PLANO 1.0
+#define COORD_TEXTURA_AVIAO 1.0
+#define COR_DO_PLANO 0.52,0.52,0.78,1.0
+#define COR_DO_AVIAO 0.3,0.52,0.18,1.0
+#define COR_DA_LOGO 0.7,0.52,0.58,1.0
+#define COR_DA_TURBINA 0.24,0.24,0.24,1.0
+#define TEXTURA_DO_PLANO "montanhas.png"
+#define TEXTURA_DO_AVIAO "camuflagem.png"
+#define TEXTURA_DA_CHAMA "flame2.png"
+
+
+GLint WIDTH =800;
+GLint HEIGHT=600;
+
+GLfloat obs[3]={0.0,7.0,0.0};
+GLfloat look[3]={0.0,3.0,0.0};
+GLuint  textura_plano;
+GLuint  textura_aviao;
+GLuint  textura_chama;
+
+GLshort texturas=1;
+GLshort flame_is_on=1;
+GLfloat tetaxz=0;
+GLfloat raioxz=6;
+GLuint  jato;
+
+GLfloat ctp[4][2]={
+  {-COORD_TEXTURA_PLANO,-COORD_TEXTURA_PLANO},
+  {+COORD_TEXTURA_PLANO,-COORD_TEXTURA_PLANO},
+  {+COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO},
+  {-COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO}
+};
+
+GLfloat cta[4][2]={
+  {-COORD_TEXTURA_AVIAO,-COORD_TEXTURA_AVIAO},
+  {+COORD_TEXTURA_AVIAO,-COORD_TEXTURA_AVIAO},
+  {+COORD_TEXTURA_AVIAO,+COORD_TEXTURA_AVIAO},
+  {-COORD_TEXTURA_AVIAO,+COORD_TEXTURA_AVIAO}
+};
+
+GLfloat ctl[4][2]={
+  {0,0},
+  {1,0},
+  {1,1},
+  {0,1}
+};
+
+GLfloat asa[][3]={
+  {-4.0,0.0,0.0},
+  {+4.0,0.0,0.0},
+  {0.0,0.0,3.0}
+};
+
+GLfloat cauda[][3]={
+  {0.0,0.0,0.0},
+  {0.0,2.0,-1.0},
+  {0.0,2.0,0.0},
+  {0.0,0.0,2.0}
+};
+
+void reshape(int width, int height){
+  WIDTH=width;
+  HEIGHT=height;
+  glViewport(0,0,(GLint)width,(GLint)height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(70.0,width/(float)height,0.1,30.0);
+  glMatrixMode(GL_MODELVIEW);
+}
+
+void compoe_jato(void){
+  GLUquadricObj *quadric;
+
+  /* inicia a composicao do jato */
+  jato = glGenLists(1);
+  glNewList(jato, GL_COMPILE);
+
+  /* asas */
+  glBegin(GL_TRIANGLES);
+  glTexCoord2fv(cta[0]); glVertex3fv(asa[0]);
+  glTexCoord2fv(cta[1]); glVertex3fv(asa[1]);
+  glTexCoord2fv(cta[3]); glVertex3fv(asa[2]);
+  glEnd();
+
+  /*missil1*/
+  glPushMatrix();
+  //posiciona
+  glTranslatef(-2, -0.11, 1);
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  //bico
+  gluCylinder(quadric, 0.1, 0.0, 0.4, 8, 1);
+  //corpo
+  glTranslatef(0, 0, -0.8);
+  gluCylinder(quadric, 0.1, 0.1, 0.8, 8, 1);
+  //cauda
+  glTranslatef(0, 0, -0.05);
+  gluCylinder(quadric, 0.0, 0.1, 0.05, 8, 1);
+  glPopMatrix();
+
+  /*missil2*/
+  glPushMatrix();
+  //posiciona
+  glTranslatef(2, -0.11, 1);
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  //bico
+  gluCylinder(quadric, 0.1, 0.0, 0.4, 8, 1);
+  //corpo
+  glTranslatef(0, 0, -0.8);
+  gluCylinder(quadric, 0.1, 0.1, 0.8, 8, 1);
+  //cauda
+  glTranslatef(0, 0, -0.05);
+  gluCylinder(quadric, 0.0, 0.1, 0.05, 8, 1);
+  glPopMatrix();
+
+  /* corpo */
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  gluCylinder(quadric, 0.5, 0.5, 4, 12, 3);
+
+  //guarda para turbina
+  glPushMatrix();
+
+  /* nariz */
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  glPushMatrix();
+  glTranslatef(0,0,4);
+  gluCylinder(quadric, 0.5, 0.0, 1.5, 12, 3);
+  glPopMatrix();
+
+  /* cauda */
+  glBegin(GL_POLYGON);
+  glTexCoord2fv(cta[0]); glVertex3fv(cauda[0]);
+  glTexCoord2fv(cta[1]); glVertex3fv(cauda[1]);
+  glTexCoord2fv(cta[2]); glVertex3fv(cauda[2]);
+  glTexCoord2fv(cta[3]); glVertex3fv(cauda[3]);
+  glEnd();
+
+  /* turbina */
+  //retorna mat para turbina
+  glPopMatrix();
+  glPushMatrix();
+  glTranslatef(0,0,-1);
+
+  quadric = gluNewQuadric();
+  if (flame_is_on) {
+    printf("%s\n", "isON");
+    gluQuadricTexture(quadric, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D,textura_chama);
+    glColor4f(1.0,0.0,0.0,0.5);
+    gluCylinder(quadric, 0.1, 0.497, 1, 12, 1);
+  }
+
+  glTranslatef(0,0,0.4);
+  glDisable(GL_TEXTURE_2D);
+  if (flame_is_on) {
+    glColor4f(1.0,0.0,0.0,1.0);
+  } else {
+    glColor4f(0.34,0.34,0.34,1.0);
+  }
+  gluCylinder(quadric, 0, 0.495, 0.6, 12, 1);
+  glTranslatef(0,0,0.35);
+
+  glColor4f(COR_DA_TURBINA);
+  gluCylinder(quadric, 0.4, 0.5, 0.25, 12, 1);
+  glPopMatrix();
+  /* end - turbina*/
+
+  /* cabine do piloto */
+  glDisable(GL_TEXTURE_2D);
+  glTranslatef(0,0.3,3.5);
+  glPushMatrix();
+  glScalef(0.7,0.7,2.0);
+  quadric=gluNewQuadric();
+  glColor4f(0.3,0.5,1,0.5);
+  gluSphere(quadric,0.5,12,12);
+  glPopMatrix();
+
+
+  /* termina a composicao do jato*/
+  glEndList();
+}
+
+void display(void){
+  glEnable(GL_DEPTH_TEST);
+
+  //glDepthMask(GL_TRUE);
+  glClearColor(1.0,1.0,1.0,1.0);
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+  glPushMatrix();
+
+  /* calcula a posicao do observador */
+  obs[0]=raioxz*cos(2*PI*tetaxz/360);
+  obs[2]=raioxz*sin(2*PI*tetaxz/360);
+  gluLookAt(obs[0],obs[1],obs[2],look[0],look[1],look[2],0.0,1.0,0.0);
+
+  /* habilita/desabilita uso de texturas*/
+  if(texturas){
+    glEnable(GL_TEXTURE_2D);
+  }
+  else{
+    glDisable(GL_TEXTURE_2D);
+  }
+  glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+
+  // grava a transformacao atual
+  glPushMatrix();
+  //plano texturizado
+  glColor4f(COR_DO_PLANO);
+  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+  glBindTexture(GL_TEXTURE_2D,textura_plano);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctp[0]);  glVertex3f(-10,0,10);
+  glTexCoord2fv(ctp[1]);  glVertex3f(10,0,10);
+  glTexCoord2fv(ctp[2]);  glVertex3f(10,0,-10);
+  glTexCoord2fv(ctp[3]);  glVertex3f(-10,0,-10);
+  glEnd();
+
+  //aviao texturizado
+  glTranslatef(0.0,2.0,-3.0);
+  glColor4f(COR_DO_AVIAO);
+  glBindTexture(GL_TEXTURE_2D,textura_aviao);
+  glCallList(jato);
+  glPopMatrix();
+  // volta para a ultima transformacao
+
+  // grava a transformacao atual
+  glPushMatrix();
+  glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+  glColor4f(COR_DO_PLANO);
+  glBindTexture(GL_TEXTURE_2D,textura_plano);
+
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctp[0]);  glVertex3f(-10,0,10);
+  glTexCoord2fv(ctp[1]);  glVertex3f(10,0,10);
+  glTexCoord2fv(ctp[2]);  glVertex3f(10,0,-10);
+  glTexCoord2fv(ctp[3]);  glVertex3f(-10,0,-10);
+  glEnd();
+  glTranslatef(0.0,2.0,-3.0);
+  glColor4f(COR_DO_AVIAO);
+  glBindTexture(GL_TEXTURE_2D,textura_aviao);
+  glCallList(jato);
+  glPopMatrix();
+  // volta para a ultima transformacao
+
+  glPopMatrix();
+  glutSwapBuffers();
+}
+
+
+void special(int key, int x, int y){
+  switch (key) {
+  case GLUT_KEY_UP:
+    obs[1]=obs[1]+1;
+    glutPostRedisplay();
+    break;
+  case GLUT_KEY_DOWN:
+    obs[1] =obs[1]-1;
+    glutPostRedisplay();
+    break;
+  case GLUT_KEY_LEFT:
+    tetaxz=tetaxz+2;
+    glutPostRedisplay();
+    break;
+  case GLUT_KEY_RIGHT:
+    tetaxz=tetaxz-2;
+    glutPostRedisplay();
+    break;
+  }
+}
+
+void keyboard(unsigned char key, int x, int y){
+  switch (key) {
+  case 27:
+    exit(0);
+    break;
+  case 't':
+    texturas = !texturas;
+    glutPostRedisplay();
+    break;
+  case 'r':
+    raioxz=raioxz+1;
+    glutPostRedisplay();
+    break;
+  case 'R':
+    raioxz=raioxz-1;
+    if(raioxz==0){
+      raioxz=1;
+    }
+    glutPostRedisplay();
+    break;
+  case 'o':
+    flame_is_on = !flame_is_on;
+    compoe_jato();
+    //printf("%i\n", flame_is_on);
+    glutPostRedisplay();
+    break;
+  }
+}
+
+void carregar_texturas(void){
+  textura_plano = png_texture_load(TEXTURA_DO_PLANO, NULL, NULL);
+  textura_aviao = png_texture_load(TEXTURA_DO_AVIAO, NULL, NULL);
+  textura_chama = png_texture_load(TEXTURA_DA_CHAMA, NULL, NULL);
+}
+
+void init(){
+  glEnable(GL_DEPTH_TEST);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  carregar_texturas();
+  compoe_jato();
+  //  glShadeModel(GL_FLAT);
+  glEnable(GL_TEXTURE_2D);
+}
+
+int main(int argc,char **argv){
+  glutInitWindowPosition(0,0);
+  glutInitWindowSize(WIDTH,HEIGHT);
+  glutInit(&amp;argc,argv);
+  glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_DOUBLE|GLUT_ALPHA);
+
+  if(!glutCreateWindow("Avião a jato")) {
+    fprintf(stderr,"Error opening a window.\n");
+    exit(-1);
+  }
+
+  init();
+
+  glutKeyboardFunc(keyboard);
+  glutSpecialFunc(special);
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutMainLoop();
+
+  return(0);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_17">8.1.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/superjato1.png" alt="superjato1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/superjato2.png" alt="superjato2">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/superjato3.png" alt="superjato3">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/superjato4.png" alt="superjato4">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comentário_5">8.1.4. Comentário</h4>
+<div class="paragraph">
+<p>Para ligar e desligar a turbina precione a tecla 'o'.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_super_jato_com_logo">8.2. Super Jato com Logo</h3>
+<div class="sect3">
+<h4 id="_questão_18">8.2.1. Questão</h4>
+<div class="paragraph">
+<p>Crie um logotipo utilizando um programa de manipulação de imagens de sua preferência. Salve-o no formato Iris RGB e mapeie-o na parte superior da asa, como mostra a Figura Exemplo de logotipo para o superjato.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/exemplo.svg" alt="exemplo">
+</div>
+</div>
+<div class="ulist">
+<div class="title">Arquivos:</div>
+<ul>
+<li>
+<p><a href="ex/8/Makefile" target="_blank">Makefile</a></p>
+</li>
+<li>
+<p><a href="ex/8/superjato.c" target="_blank">superjato.c</a></p>
+</li>
+<li>
+<p><a href="ex/8/png_texture.h" target="_blank">png_texture.h</a></p>
+</li>
+<li>
+<p><a href="ex/8/camuflagem.png" target="_blank">camuflagem.png</a></p>
+</li>
+<li>
+<p><a href="ex/8/montanhas.png" target="_blank">montanhas.png</a></p>
+</li>
+<li>
+<p><a href="ex/8/logo.png" target="_blank">logo.png</a></p>
+</li>
+<li>
+<p><a href="ex/8/superjatologo.c" target="_blank">superjatologo.c</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_código_18">8.2.2. Código</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code class="language-c++" data-lang="c++">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;math.h&gt;
+#include &lt;GL/glut.h&gt;
+#include "png_texture.h"
+
+#define PI 3.1415
+
+#define COORD_TEXTURA_PLANO 1.0
+#define COORD_TEXTURA_AVIAO 1.0
+#define COR_DO_PLANO 0.52,0.52,0.78,1.0
+#define COR_DO_AVIAO 0.3,0.52,0.18,1.0
+#define COR_DA_LOGO 0.7,0.52,0.58,1.0
+#define COR_DA_TURBINA 0.24,0.24,0.24,1.0
+#define TEXTURA_DO_PLANO "montanhas.png"
+#define TEXTURA_DO_AVIAO "camuflagem.png"
+#define LOGO_DO_AVIAO "logo.png"
+#define TEXTURA_DA_CHAMA "flame2.png"
+
+
+GLint WIDTH =800;
+GLint HEIGHT=600;
+
+GLfloat obs[3]={0.0,7.0,0.0};
+GLfloat look[3]={0.0,3.0,0.0};
+GLuint  textura_plano;
+GLuint  textura_aviao;
+GLuint  logo_aviao;
+GLuint  textura_chama;
+
+GLshort texturas=1;
+GLshort flame_is_on=1;
+GLfloat tetaxz=0;
+GLfloat raioxz=6;
+GLuint  jato;
+
+GLfloat ctp[4][2]={
+  {-COORD_TEXTURA_PLANO,-COORD_TEXTURA_PLANO},
+  {+COORD_TEXTURA_PLANO,-COORD_TEXTURA_PLANO},
+  {+COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO},
+  {-COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO}
+};
+
+GLfloat cta[4][2]={
+  {-COORD_TEXTURA_AVIAO,-COORD_TEXTURA_AVIAO},
+  {+COORD_TEXTURA_AVIAO,-COORD_TEXTURA_AVIAO},
+  {+COORD_TEXTURA_AVIAO,+COORD_TEXTURA_AVIAO},
+  {-COORD_TEXTURA_AVIAO,+COORD_TEXTURA_AVIAO}
+};
+
+GLfloat ctl[4][2]={
+  {0,0},
+  {1,0},
+  {1,1},
+  {0,1}
+};
+
+GLfloat asa[][3]={
+  {-4.0,0.0,0.0},
+  {+4.0,0.0,0.0},
+  {0.0,0.0,3.0}
+};
+
+GLfloat cauda[][3]={
+  {0.0,0.0,0.0},
+  {0.0,2.0,-1.0},
+  {0.0,2.0,0.0},
+  {0.0,0.0,2.0}
+};
+
+GLfloat logo[][3]={
+  {0.0,1.0,-0.2},
+  {0.0,1.5,-0.2},
+  {0.0,1.5,0.3},
+  {0.0,1.0,0.3}
+};
+
+void reshape(int width, int height){
+  WIDTH=width;
+  HEIGHT=height;
+  glViewport(0,0,(GLint)width,(GLint)height);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(70.0,width/(float)height,0.1,30.0);
+  glMatrixMode(GL_MODELVIEW);
+}
+
+void compoe_jato(void){
+  GLUquadricObj *quadric;
+
+  /* inicia a composicao do jato */
+  jato = glGenLists(1);
+  glNewList(jato, GL_COMPILE);
+
+  /* asas */
+  glBegin(GL_TRIANGLES);
+  glTexCoord2fv(cta[0]); glVertex3fv(asa[0]);
+  glTexCoord2fv(cta[1]); glVertex3fv(asa[1]);
+  glTexCoord2fv(cta[3]); glVertex3fv(asa[2]);
+  glEnd();
+
+  /*missil1*/
+  glPushMatrix();
+  //posiciona
+  glTranslatef(-2, -0.11, 1);
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  //bico
+  gluCylinder(quadric, 0.1, 0.0, 0.4, 8, 1);
+  //corpo
+  glTranslatef(0, 0, -0.8);
+  gluCylinder(quadric, 0.1, 0.1, 0.8, 8, 1);
+  //cauda
+  glTranslatef(0, 0, -0.05);
+  gluCylinder(quadric, 0.0, 0.1, 0.05, 8, 1);
+  glPopMatrix();
+
+  /*missil2*/
+  glPushMatrix();
+  //posiciona
+  glTranslatef(2, -0.11, 1);
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  //bico
+  gluCylinder(quadric, 0.1, 0.0, 0.4, 8, 1);
+  //corpo
+  glTranslatef(0, 0, -0.8);
+  gluCylinder(quadric, 0.1, 0.1, 0.8, 8, 1);
+  //cauda
+  glTranslatef(0, 0, -0.05);
+  gluCylinder(quadric, 0.0, 0.1, 0.05, 8, 1);
+  glPopMatrix();
+
+  /* corpo */
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  gluCylinder(quadric, 0.5, 0.5, 4, 12, 3);
+
+  //guarda para turbina
+  glPushMatrix();
+
+  /* nariz */
+  quadric = gluNewQuadric();
+  gluQuadricTexture(quadric, GL_TRUE);
+  glPushMatrix();
+  glTranslatef(0,0,4);
+  gluCylinder(quadric, 0.5, 0.0, 1.5, 12, 3);
+  glPopMatrix();
+
+  /* cauda */
+  glBegin(GL_POLYGON);
+  glTexCoord2fv(cta[0]); glVertex3fv(cauda[0]);
+  glTexCoord2fv(cta[1]); glVertex3fv(cauda[1]);
+  glTexCoord2fv(cta[2]); glVertex3fv(cauda[2]);
+  glTexCoord2fv(cta[3]); glVertex3fv(cauda[3]);
+  glEnd();
+
+  /* turbina */
+  //retorna mat para turbina
+  glPopMatrix();
+  glPushMatrix();
+  glTranslatef(0,0,-1);
+
+  quadric = gluNewQuadric();
+  if (flame_is_on) {
+    printf("%s\n", "isON");
+    gluQuadricTexture(quadric, GL_TRUE);
+    glBindTexture(GL_TEXTURE_2D,textura_chama);
+    glColor4f(1.0,0.0,0.0,0.5);
+    gluCylinder(quadric, 0.1, 0.497, 1, 12, 1);
+  }
+
+  glTranslatef(0,0,0.4);
+  glDisable(GL_TEXTURE_2D);
+  if (flame_is_on) {
+    glColor4f(1.0,0.0,0.0,1.0);
+  } else {
+    glColor4f(0.34,0.34,0.34,1.0);
+  }
+  gluCylinder(quadric, 0, 0.495, 0.6, 12, 1);
+  glTranslatef(0,0,0.35);
+
+  glColor4f(COR_DA_TURBINA);
+  gluCylinder(quadric, 0.4, 0.5, 0.25, 12, 1);
+  glPopMatrix();
+  /* end - turbina*/
+
+  if(texturas){
+    glEnable(GL_TEXTURE_2D);
+  }
+
+  /* logo na cauda*/
+  glBindTexture(GL_TEXTURE_2D,logo_aviao);
+  glColor4f(COR_DA_LOGO);
+
+  glPushMatrix();
+  glTranslatef(0.01,0,0);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctl[0]); glVertex3fv(logo[3]);
+  glTexCoord2fv(ctl[1]); glVertex3fv(logo[0]);
+  glTexCoord2fv(ctl[2]); glVertex3fv(logo[1]);
+  glTexCoord2fv(ctl[3]); glVertex3fv(logo[2]);
+  glEnd();
+  glPopMatrix();
+
+  glPushMatrix();
+  glTranslatef(-0.01,0,0);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctl[0]); glVertex3fv(logo[3]);
+  glTexCoord2fv(ctl[1]); glVertex3fv(logo[0]);
+  glTexCoord2fv(ctl[2]); glVertex3fv(logo[1]);
+  glTexCoord2fv(ctl[3]); glVertex3fv(logo[2]);
+  glEnd();
+  glPopMatrix();
+  /*end - logo na cauda*/
+
+
+  /* cabine do piloto */
+  glDisable(GL_TEXTURE_2D);
+  glTranslatef(0,0.3,3.5);
+  glPushMatrix();
+  glScalef(0.7,0.7,2.0);
+  quadric=gluNewQuadric();
+  glColor4f(0.3,0.5,1,0.5);
+  gluSphere(quadric,0.5,12,12);
+  glPopMatrix();
+
+
+  /* termina a composicao do jato*/
+  glEndList();
+}
+
+void display(void){
+  glEnable(GL_DEPTH_TEST);
+
+  //glDepthMask(GL_TRUE);
+  glClearColor(1.0,1.0,1.0,1.0);
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+  glPushMatrix();
+
+  /* calcula a posicao do observador */
+  obs[0]=raioxz*cos(2*PI*tetaxz/360);
+  obs[2]=raioxz*sin(2*PI*tetaxz/360);
+  gluLookAt(obs[0],obs[1],obs[2],look[0],look[1],look[2],0.0,1.0,0.0);
+
+  /* habilita/desabilita uso de texturas*/
+  if(texturas){
+    glEnable(GL_TEXTURE_2D);
+  }
+  else{
+    glDisable(GL_TEXTURE_2D);
+  }
+  glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+
+  // grava a transformacao atual
+  glPushMatrix();
+  //plano texturizado
+  glColor4f(COR_DO_PLANO);
+  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+  glBindTexture(GL_TEXTURE_2D,textura_plano);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctp[0]);  glVertex3f(-10,0,10);
+  glTexCoord2fv(ctp[1]);  glVertex3f(10,0,10);
+  glTexCoord2fv(ctp[2]);  glVertex3f(10,0,-10);
+  glTexCoord2fv(ctp[3]);  glVertex3f(-10,0,-10);
+  glEnd();
+
+  //aviao texturizado
+  glTranslatef(0.0,2.0,-3.0);
+  glColor4f(COR_DO_AVIAO);
+  glBindTexture(GL_TEXTURE_2D,textura_aviao);
+  glCallList(jato);
+  glPopMatrix();
+  // volta para a ultima transformacao
+
+  // grava a transformacao atual
+  glPushMatrix();
+  glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+  glColor4f(COR_DO_PLANO);
+  glBindTexture(GL_TEXTURE_2D,textura_plano);
+
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctp[0]);  glVertex3f(-10,0,10);
+  glTexCoord2fv(ctp[1]);  glVertex3f(10,0,10);
+  glTexCoord2fv(ctp[2]);  glVertex3f(10,0,-10);
+  glTexCoord2fv(ctp[3]);  glVertex3f(-10,0,-10);
+  glEnd();
+  glTranslatef(0.0,2.0,-3.0);
+  glColor4f(COR_DO_AVIAO);
+  glBindTexture(GL_TEXTURE_2D,textura_aviao);
+  glCallList(jato);
+  glPopMatrix();
+  // volta para a ultima transformacao
+
+  glPopMatrix();
+  glutSwapBuffers();
+}
+
+
+void special(int key, int x, int y){
+  switch (key) {
+  case GLUT_KEY_UP:
+    obs[1]=obs[1]+1;
+    glutPostRedisplay();
+    break;
+  case GLUT_KEY_DOWN:
+    obs[1] =obs[1]-1;
+    glutPostRedisplay();
+    break;
+  case GLUT_KEY_LEFT:
+    tetaxz=tetaxz+2;
+    glutPostRedisplay();
+    break;
+  case GLUT_KEY_RIGHT:
+    tetaxz=tetaxz-2;
+    glutPostRedisplay();
+    break;
+  }
+}
+
+void keyboard(unsigned char key, int x, int y){
+  switch (key) {
+  case 27:
+    exit(0);
+    break;
+  case 't':
+    texturas = !texturas;
+    glutPostRedisplay();
+    break;
+  case 'r':
+    raioxz=raioxz+1;
+    glutPostRedisplay();
+    break;
+  case 'R':
+    raioxz=raioxz-1;
+    if(raioxz==0){
+      raioxz=1;
+    }
+    glutPostRedisplay();
+    break;
+  case 'o':
+    flame_is_on = !flame_is_on;
+    compoe_jato();
+    //printf("%i\n", flame_is_on);
+    glutPostRedisplay();
+    break;
+  }
+}
+
+void carregar_texturas(void){
+  textura_plano = png_texture_load(TEXTURA_DO_PLANO, NULL, NULL);
+  textura_aviao = png_texture_load(TEXTURA_DO_AVIAO, NULL, NULL);
+  logo_aviao = png_texture_load(LOGO_DO_AVIAO, NULL, NULL);
+  textura_chama = png_texture_load(TEXTURA_DA_CHAMA, NULL, NULL);
+}
+
+void init(){
+  glEnable(GL_DEPTH_TEST);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  carregar_texturas();
+  compoe_jato();
+  //  glShadeModel(GL_FLAT);
+  glEnable(GL_TEXTURE_2D);
+}
+
+int main(int argc,char **argv){
+  glutInitWindowPosition(0,0);
+  glutInitWindowSize(WIDTH,HEIGHT);
+  glutInit(&amp;argc,argv);
+  glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_DOUBLE|GLUT_ALPHA);
+
+  if(!glutCreateWindow("Avião a jato")) {
+    fprintf(stderr,"Error opening a window.\n");
+    exit(-1);
+  }
+
+  init();
+
+  glutKeyboardFunc(keyboard);
+  glutSpecialFunc(special);
+  glutDisplayFunc(display);
+  glutReshapeFunc(reshape);
+  glutMainLoop();
+
+  return(0);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_imagem_18">8.2.3. Imagem</h4>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/superjatologo1.png" alt="superjatologo1">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="ex/8/superjatologo2.png" alt="superjatologo2">
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_comentário_6">8.2.4. Comentário</h4>
+<div class="paragraph">
+<p>Para ligar e desligar a turbina precione a tecla 'o'.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-09-14 15:27:20 BRT
+Last updated 2015-11-04 21:59:35 BRT
 </div>
 </div>
 </body>

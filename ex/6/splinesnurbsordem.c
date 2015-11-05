@@ -23,19 +23,73 @@ GLfloat topo    =+5;
 GLfloat longe   =+5;
 GLfloat perto   =-5;
 
-enum {BEZIER, N_UNIFORM, N_OPEN, N_NOT_UNIFORM};
+enum {BEZIER, NURBS, N_UNIFORM, N_OPEN, N_NOT_UNIFORM};
 GLint spline;
 GLUnurbsObj *nc;
-GLfloat uniformKnots[10]={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
-GLfloat openKnots[10]={0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0};
-GLfloat notUniformKnots[10]={0.0, 1.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0, 103.0};
-GLint nNos=10;
+
+//ORDEM
+
+GLint ORDEM=3;
+GLint nNos=nVertices+ORDEM;
+const int nknots = 9;
+GLfloat uniformKnots[nknots]   ={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
+GLfloat openKnots[nknots]      ={0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 4.0, 4.0};
+GLfloat notUniformKnots[nknots]={0.0, 1.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0};
+
+/*GLint ORDEM=4;
+GLint nNos=nVertices+ORDEM;
+const int nknots = 10;
+GLfloat uniformKnots[nknots]   ={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+GLfloat openKnots[nknots]      ={0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0};
+GLfloat notUniformKnots[nknots]={0.0, 1.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0, 103.0};
+
+GLint ORDEM=5;
+GLint nNos=nVertices+ORDEM;
+const int nknots = 11;
+GLfloat uniformKnots[nknots]   ={0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
+GLfloat openKnots[nknots]      ={0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+GLfloat notUniformKnots[nknots]={0.0, 1.0, 2.0, 5.0, 10.0, 30.0, 32.0, 33.0, 43.0, 73.0, 103.0};*/
 
 GLint matrizViewport[4];
 GLdouble matrizModelview[16], matrizProjecao[16];
 GLint yreal;  /*  posicao da coordenada y no OpenGL */
 GLdouble wx, wy, wz;  /*  coordenadas no mundo real: x, y, z  */
 
+/*
+void gluNurbsCurve( GLUnurbsObj *nobj, GLint nknots, GLfloat *knot, GLint stride, 
+                    GLfloat *ctlarray, GLint order, GLenum type )
+gluNurbsCurve(nc, nNos, uniformKnots, 3, &vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
+
+-PARAMETERS
+nobj    
+  Specifies the NURBS object (created with gluNewNurbsRenderer).
+
+nknots    
+  Specifies the number of knots in knot. nknots equals the number 
+  of control points plus the order.
+
+knot    
+  Specifies an array of nknots nondecreasing knot values.
+
+stride    
+  Specifies the offset (as a number of single-precision floating-point 
+  values) between successive curve control points.
+
+ctlarray    
+  Specifies a pointer to an array of control points. The coordinates 
+  must agree with type, specified below.
+
+order   
+  Specifies the order of the NURBS curve. order equals degree + 1, 
+  hence a cubic curve has an order of 4.
+
+type    
+  Specifies the type of the curve. If this curve is defined within 
+  a gluBeginCurve/gluEndCurve pair, then the type can be any of the
+  valid one-dimensional evaluator types (such as GL_MAP1_VERTEX_3 or 
+  GL_MAP1_COLOR_4). Between a gluBeginTrim/gluEndTrim pair, the only 
+  valid types are GLU_MAP1_TRIM_2 and GLU_MAP1_TRIM_3. 
+*/
 void display(void){
   int i;
   glClear(GL_COLOR_BUFFER_BIT);
@@ -50,17 +104,17 @@ void display(void){
     break;
   case N_UNIFORM:
     gluBeginCurve(nc);
-    gluNurbsCurve(nc, nNos, uniformKnots, 3, &vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluNurbsCurve(nc, nNos, uniformKnots, 3, &vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
     gluEndCurve(nc);
     break;
   case N_OPEN:
     gluBeginCurve(nc);
-    gluNurbsCurve(nc, nNos, openKnots, 3, &vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluNurbsCurve(nc, nNos, openKnots, 3, &vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
     gluEndCurve(nc);
     break;
   case N_NOT_UNIFORM:
     gluBeginCurve(nc);
-    gluNurbsCurve(nc, nNos, notUniformKnots, 3, &vertices[0][0], 4, GL_MAP1_VERTEX_3);
+    gluNurbsCurve(nc, nNos, notUniformKnots, 3, &vertices[0][0], ORDEM, GL_MAP1_VERTEX_3);
     gluEndCurve(nc);
     break;
   }
@@ -84,7 +138,7 @@ void init(void){
   glClearColor(0.0, 0.0, 0.0, 0.0);
   spline=BEZIER;
   nc= gluNewNurbsRenderer();
-  gluNurbsProperty(nc, GLU_SAMPLING_TOLERANCE, 5.0);
+  // gluNurbsProperty(nc, GLU_SAMPLING_TOLERANCE, 5.0);
   glEnable(GL_MAP1_VERTEX_3);
   display();
 }

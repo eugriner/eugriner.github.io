@@ -318,6 +318,125 @@ image::ex/5/projecoesAnimadas1.png[]
 
 image::ex/5/projecoesAnimadas2.png[]
 
+== Curvas no plano
+
+=== Funcionalidades
+
+==== Questão
+
+Comente as funcionalidades das curvas de Bézier e NURBS utilizadas neste exemplo.
+
+.Arquivos:
+* link:ex/6/splines2d.c[splines2d.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/6/splines2d.c[]
+----
+
+==== Imagem
+[[bezier]]
+.Bézier
+image::ex/6/splines2d1.png[]
+[[nurbs]]
+.NURBS
+image::ex/6/splines2d2.png[]
+
+==== Comentário
+
+A curva de Bézier é uma curva polinomial expressa como a interpolação linear entre alguns pontos representativos, chamados de pontos de controle. Ela foi desenvolvida em 1962 e seu nome é devido a quem publicou o primeiro trabalho sobre a curva, o francês Pierre Bézier, funcionário da Renault, que a usou para o design de automóveis. Ela foi estruturada a partir do algoritmo de Paul de Casteljau, da Citroën, em 1957, e foi formalizada na década de 60 (WIKIPEDIA).
+São curvas suaves, mas muitas vezes aproximam-se a forma desejada, e não descrevendo esta fielmente, como em um circulo de Bézier.
+
+A NURBS é mais flexível que Bézier podendo ser mais "nervosa" quando necessário para representar qualquer forma. Ela é altamente difundida em CADs.
+
+É importante frizar que os dois tipos de curvas tem o objetivo de facilitar a modelagem e manipulação de curvas.
+
+=== Splines Nurbs
+
+==== Questão
+
+Utilizando o programa splines2d.c como referência, implemente um programa splinesnurbs.c. Quando a tecla u for pressionada, a NURBS deverá ser desenhada utilizando um vetor de nós uniforme. Quando a tecla o for pressionada, a NURBS deverá ser desenhada utilizando um vetor de nós uniforme aberto. Quando a tecla n for pressionada, a NURBS deverá ser desenhada utilizando um vetor de nós não uniforme.
+
+.Arquivos:
+* link:ex/6/splines2d.c[splines2d.c, window="_blank"]
+* link:ex/6/splinesnurbs.c[splinesnurbs.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/6/splinesnurbs.c[]
+----
+
+==== Imagem
+
+.Uniforme
+image::ex/6/splinesnurbs1.png[]
+.Aberta
+image::ex/6/splinesnurbs2.png[]
+.Não uniforme
+image::ex/6/splinesnurbs3.png[]
+
+
+=== Ordem Splines Nurbs
+
+==== Questão
+
+Qual a influência do vetor de nós foi utilizado sobre o comportamento das curvas tipo NURBS? Comente o resultado que obteve para curvas de ordens 3 e 5.
+
+.Arquivos:
+* link:ex/6/splines2d.c[splines2d.c, window="_blank"]
+* link:ex/6/splinesnurbsordem.c[splinesnurbsordem.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/6/splinesnurbsordem.c[]
+----
+
+==== Imagem
+.Uniforme Ordem 3
+image::ex/6/splinesnurbsordem1.png[]
+.Uniforme Ordem 4
+image::ex/6/splinesnurbsordem2.png[]
+.Uniforme Ordem 5
+image::ex/6/splinesnurbsordem3.png[]
+
+==== Comentário
+Quanto maior a ordem, menos flexível e suave a curva fica. O resultado fica evidente nas imagens acima.
+
+=== Comparação
+
+==== Questão
+Compare curvas de Beziér com NURBS considerando ordens iguais para ambas as curvas.
+
+==== Comentário
+É possível verificar que <<bezier>> é mais suave e <<nurbs>> tem uma influencia mais forte dos vertices controle.
+
+== Superfícies no espaço
+
+=== Spline Inter
+
+==== Questão
+Utilizando as técnicas de seleção de objetos apresentadas no Capítulo [superficies-espaco], implemente um programa splineinter.c que proporcione um processo de modelagem interativa para este exemplo. Quando pressionar o botão esquerdo do mouse, o usuário deverá poder movimentar os pontos da malha de controle, podendo assim controlar livremente a forma da superfície.
+
+.Arquivos:
+* link:ex/7/splines3d.c[splines3d.c, window="_blank"]
+* link:ex/7/splineinter.c[splineinter.c, window="_blank"]
+
+==== Código
+
+[source,c++]
+----
+include::{sourcedir}/7/splineinter.c[]
+----
+
+==== Imagem
+image::ex/7/splineinter1.png[]
+
 == Modelagem de Sólidos
 
 === Super Jato
@@ -327,7 +446,6 @@ image::ex/5/projecoesAnimadas2.png[]
 Utilizando o programa exemplos/jato.c como referência, implemente um programa superjato.c. Caso você ainda não tenha notado, o avião a jato deste exemplo não possui uma turbina. Faça-o mais interessante, projetando essa turbina e acoplando-a à parte traseira do jato no seu novo programa. O modelo da turbina fica a seu gosto. Acrescente também dois mísseis sob as asas.
 
 .Arquivos:
-* link:ex/8/Makefile[Makefile, window="_blank"]
 * link:ex/8/jato.c[jato.c, window="_blank"]
 * link:ex/8/png_texture.h[png_texture.h, window="_blank"]
 * link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
@@ -344,16 +462,15 @@ include::{sourcedir}/8/superjato.c[]
 ==== Imagem
 
 image::ex/8/superjato1.png[]
-
 image::ex/8/superjato2.png[]
-
 image::ex/8/superjato3.png[]
-
 image::ex/8/superjato4.png[]
 
 ==== Comentário
 
 Para ligar e desligar a turbina precione a tecla 'o'.
+
+=== Super Jato com Logo
 
 ==== Questão
 
@@ -367,6 +484,7 @@ image::ex/8/exemplo.svg[]
 * link:ex/8/png_texture.h[png_texture.h, window="_blank"]
 * link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
 * link:ex/8/montanhas.png[montanhas.png, window="_blank"]
+* link:ex/8/logo.png[logo.png, window="_blank"]
 * link:ex/8/superjatologo.c[superjatologo.c, window="_blank"]
 
 ==== Código
@@ -379,6 +497,8 @@ include::{sourcedir}/8/superjatologo.c[]
 ==== Imagem
 
 image::ex/8/superjatologo1.png[]
-
 image::ex/8/superjatologo2.png[]
 
+==== Comentário
+
+Para ligar e desligar a turbina precione a tecla 'o'.
