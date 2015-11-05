@@ -450,6 +450,7 @@ Utilizando o programa exemplos/jato.c como referência, implemente um programa s
 * link:ex/8/png_texture.h[png_texture.h, window="_blank"]
 * link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
 * link:ex/8/montanhas.png[montanhas.png, window="_blank"]
+* link:ex/8/flame2.png[flame2.png, window="_blank"]
 * link:ex/8/superjato.c[superjato.c, window="_blank"]
 
 ==== Código
@@ -483,6 +484,7 @@ image::ex/8/exemplo.svg[]
 * link:ex/8/png_texture.h[png_texture.h, window="_blank"]
 * link:ex/8/camuflagem.png[camuflagem.png, window="_blank"]
 * link:ex/8/montanhas.png[montanhas.png, window="_blank"]
+* link:ex/8/flame2.png[flame2.png, window="_blank"]
 * link:ex/8/logo.png[logo.png, window="_blank"]
 * link:ex/8/superjatologo.c[superjatologo.c, window="_blank"]
 
