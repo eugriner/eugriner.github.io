@@ -436,6 +436,7 @@ include::{sourcedir}/7/splineinter.c[]
 
 ==== Imagem
 image::ex/7/splineinter1.png[]
+image::ex/7/splineinter2.png[]
 
 == Modelagem de Sólidos
 

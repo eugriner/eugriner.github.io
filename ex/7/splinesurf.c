@@ -2,38 +2,32 @@
 #include <math.h>
 #include <GL/glut.h>
 
-// To work better with vectors
-#define X 0
-#define Y 1
-#define Z 2
-#define MINDISTANCE 0.5
-#define INTLIMIT 32000
-
 GLint eixox, eixoy, eixoz;
+GLdouble distmin = 0.5;
 
 GLint nVertices = 4;
 GLfloat vertices[4][4][3];
 
 GLint largura, altura;
-
 GLint mudaCurva = 0;
-GLint verticeCorrente = 0;
+GLint vcx = 0, vcy = 0;
+GLint ordemx = 3, ordemy = 4;
 
 enum {BEZIER, NURBS};
 GLint spline;
 GLUnurbsObj *nc;
-GLfloat nos[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
-GLint nNos = 8;
+GLfloat nosx[7] = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+GLfloat nosy[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
+GLint nNosx = 7, nNosy = 8;
 
 GLint matrizViewport[4];
 GLdouble matrizModelview[16], matrizProjecao[16];
-GLint yreal;  /*  posiÃ§Ã£o da coordenada y no OpenGL */
+GLdouble realy, realz;  /*  posição da coordenada y no OpenGL */
 GLdouble wx, wy, wz;  /*  coordenadas no mundo real: x, y, z  */
 GLdouble winx, winy, winz;  /*  coordenadas na janela: x, y, z  */
-GLdouble clickPos[3];
-GLdouble pmin[3]; // armazena o valor minimo dos p's
-GLdouble w1[3], w2[3]; // ponto inicial e ponto final
-GLint vc[2] = {0, 0}; // vertice selecionado para movimentacao
+GLdouble wx1, wy1, wz1, wx0, wy0, wz0; /* nas posicoes: z=0 e z=1 */
+GLdouble vx, vy, vz;
+GLdouble pmin[3];
 
 void gera_superficie(void) {
   int i, j;
@@ -60,9 +54,11 @@ void display(void) {
   glRotatef(eixoz, 0 , 0 , 1);
   glScalef(0.25, 0.25, 0.25);
 
-  glGetIntegerv(GL_VIEWPORT, matrizViewport);
-  glGetDoublev(GL_MODELVIEW_MATRIX, matrizModelview);
-  glGetDoublev(GL_PROJECTION_MATRIX, matrizProjecao);
+  glPushMatrix();
+  glGetDoublev (GL_MODELVIEW_MATRIX, matrizModelview);
+  glGetDoublev (GL_PROJECTION_MATRIX, matrizProjecao);
+  glGetIntegerv (GL_VIEWPORT, matrizViewport);
+  glPopMatrix();
 
   glDisable(GL_LIGHTING);
   glPushMatrix();
@@ -87,18 +83,20 @@ void display(void) {
   glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, 'z');
 
   glPopMatrix();
+
   glEnable(GL_LIGHTING);
 
   switch (spline) {
   case BEZIER:
-    glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0, 1, 3 * nVertices, 4, &vertices[0][0][0]);
     glEnable(GL_AUTO_NORMAL);
+    glMap2f(GL_MAP2_VERTEX_3, 0.0, 1.0, 3, 4, 0, 1, 3 * nVertices, 4, &vertices[0][0][0]);
     glMapGrid2f(20, 0, 1.0, 20, 0, 1.0);
     glEvalMesh2(GL_FILL, 0, 20, 0, 20);
+    glEnd();
     break;
   case NURBS:
     gluBeginSurface(nc);
-    gluNurbsSurface(nc, nNos, nos, nNos, nos, 4 * 3, 3, &vertices[0][0][0], 4, 4, GL_MAP2_VERTEX_3);
+    gluNurbsSurface(nc, nNosx, nosx, nNosy, nosy, 4 * 3, 3, &vertices[0][0][0], ordemx, ordemy, GL_MAP2_VERTEX_3);
     gluEndSurface(nc);
     break;
   }
@@ -108,13 +106,22 @@ void display(void) {
   glBegin(GL_POINTS);
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
-      glVertex3fv(&vertices[i][j][0]);
+      if ((vcx == i) && (vcy == j)) {
+        glColor3f(1.0, 1.0, 0.0);
+        glVertex3fv(&vertices[i][j][0]);
+        glColor3f(1.0, 0.0, 0.0);
+      }
+      else {
+        glVertex3fv(&vertices[i][j][0]);
+      }
     }
   }
   glEnable(GL_LIGHTING);
   glEnd();
+  glColor3f(1.0, 1.0, 1.0);
 
   glPopMatrix();
+
   glFlush();
 
   glutSwapBuffers();
@@ -124,14 +131,19 @@ void init(void) {
   GLfloat mat_diffuse[] = { 0.7, 0.7, 0.7, 1.0 };
   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
   GLfloat mat_shininess[] = { 100.0 };
-
+  GLfloat light_position[] = { 1.0, 1.0, 8.0, 1.0};
+  GLfloat light_ambient[] =  { 0.2, 0.2, 0.2, 1.0};
+  glClearColor (0.0, 0.0, 0.0, 1.0);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
+  glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
+  glDepthFunc(GL_LESS);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_AUTO_NORMAL);
   glEnable(GL_NORMALIZE);
@@ -157,8 +169,11 @@ void reshape(int w, int h) {
   glViewport(0, 0, w, h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective (45.0, (GLdouble)w / (GLdouble)h, 3.0, 8.0);
+  /*  gluPerspective (45.0, (GLdouble)w/(GLdouble)h, 3.0, 8.0);
+  */
+  glOrtho(-3, 3, -3, 3, -1, 10);
   glMatrixMode(GL_MODELVIEW);
+  glGetIntegerv (GL_VIEWPORT, matrizViewport);
 }
 
 /* ARGSUSED1 */
@@ -188,6 +203,10 @@ void keyboard(unsigned char key, int x, int y) {
     eixoz = (eixoz - 5) % 360;
     glutPostRedisplay();
     break;
+  case 'r':
+    eixox = eixoy = eixoz = 0;
+    glutPostRedisplay();
+    break;
   case 'b':
     spline = BEZIER;
     glutPostRedisplay();
@@ -204,45 +223,45 @@ void keyboard(unsigned char key, int x, int y) {
 
 void proximidade() {
   int i, j;
-  double tam = 0, tamin = INTLIMIT;
+  double tam = 0, tamin = 32000;
   double dx, dy, dz, px, py, pz;
   double piv, pir;
 
   // Y = V.V
-  piv = clickPos[X] * clickPos[X] + clickPos[Y] * clickPos[Y] + clickPos[Z] * clickPos[Z];
+  piv = vx * vx + vy * vy + vz * vz;
 
   for (i = 0; i < 4; i++) {
     for (j = 0; j < 4; j++) {
       
       // Z = (R - Po)
-      dx = vertices[i][j][0] - w1[X];
-      dy = vertices[i][j][1] - w1[Y];
-      dz = vertices[i][j][2] - w1[Z];
+      dx = vertices[i][j][0] - wx0;
+      dy = vertices[i][j][1] - wy0;
+      dz = vertices[i][j][2] - wz0;
       
       // X = Z.V
-      pir = dx * clickPos[X] + dy * clickPos[Y] + dz * clickPos[Z];
+      pir = dx * vx + dy * vy + dz * vz;
 
       // Po + (X/Y).V
-      px = w1[X] + pir / piv * clickPos[X];
-      py = w1[Y] + pir / piv * clickPos[Y];
-      pz = w1[Z] + pir / piv * clickPos[Z];
+      px = wx0 + pir / piv * vx;
+      py = wy0 + pir / piv * vy;
+      pz = wz0 + pir / piv * vz;
       
       // T = (xf-xi)^2 + (yf-yi)^2
       tam = (px - vertices[i][j][0]) * (px - vertices[i][j][0]) +
             (py - vertices[i][j][1]) * (py - vertices[i][j][1]) +
             (pz - vertices[i][j][2]) * (pz - vertices[i][j][2]);
 
-      if ((tam < tamin) && (tam < MINDISTANCE)) {
+      if ((tam < tamin) && (tam < distmin)) {
         tamin = tam;
-        vc[X] = i;
-        vc[Y] = j;
+        vcx = i;
+        vcy = j;
         pmin[0] = px;
         pmin[1] = py;
         pmin[2] = pz;
       }
     }
   }
-  if (tamin < MINDISTANCE) {
+  if (tamin < distmin) {
     gluProject(pmin[0], pmin[1], pmin[2],
                matrizModelview, matrizProjecao, matrizViewport,
                &winx, &winy, &winz);
@@ -254,43 +273,38 @@ void proximidade() {
 }
 
 void mouse(int button, int state, int x, int y) {
-  if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-
-    yreal = matrizViewport[3] - (GLint) y - 1;
-
-    gluUnProject ((GLdouble) x, (GLdouble) yreal, -1.0,
-                  matrizModelview, matrizProjecao, matrizViewport,
-                  &w1[X], &w1[Y], &w1[Z]);
-
-    gluUnProject ((GLdouble) x, (GLdouble) yreal, 1.0,
-                  matrizModelview, matrizProjecao, matrizViewport,
-                  &w2[X], &w2[Y], &w2[Z]);
-
-    clickPos[X] = w2[X] - w1[X];
-    clickPos[Y] = w2[Y] - w1[Y];
-    clickPos[Z] = w2[Z] - w1[Z];
-    proximidade();
-
-    glutPostRedisplay();
-  } else {
-    mudaCurva = 0;
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    if (state == GLUT_DOWN) {
+      realy = matrizViewport[3] - (GLint) y - 1;
+      gluUnProject ((GLdouble) x, (GLdouble) realy, 0.0,
+                    matrizModelview, matrizProjecao, matrizViewport,
+                    &wx0, &wy0, &wz0);
+      gluUnProject ((GLdouble) x, (GLdouble) realy, 1.0,
+                    matrizModelview, matrizProjecao, matrizViewport,
+                    &wx1, &wy1, &wz1);
+      vx = wx1 - wx0;
+      vy = wy1 - wy0;
+      vz = wz1 - wz0;
+      proximidade();
+      glutPostRedisplay();
+    }
+    else {
+      mudaCurva = 0;
+    }
+    break;
   }
 }
 
 void motion(int x, int y) {
-  // quando tiver clicado em ponto de controle
   if (mudaCurva) {
-    // convert y para coordenadas de mundo
-    yreal = matrizViewport[3] - (GLint) y - 1;
-    // recupera a posicao do x, y, z do mouse
-    gluUnProject((GLdouble) x, (GLdouble) yreal, winz,
+    realy = matrizViewport[3] - (GLint) y - 1;
+    gluUnProject((GLdouble) x, (GLdouble) realy, winz,
                  matrizModelview, matrizProjecao, matrizViewport,
                  &wx, &wy, &wz);
-    // altera a posicao do vertice de controle
-    vertices[vc[X]][vc[Y]][0] = wx;
-    vertices[vc[X]][vc[Y]][1] = wy;
-    vertices[vc[X]][vc[Y]][2] = wz;
-    //redesenha
+    vertices[vcx][vcy][0] = wx;
+    vertices[vcx][vcy][1] = wy;
+    vertices[vcx][vcy][2] = wz;
     glutPostRedisplay();
   }
 }
